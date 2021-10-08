@@ -1,0 +1,12 @@
+server:
+  port: 7877
+
+servitium:
+  butterfly:
+    url-prefix: https://butterfly.servitiumcrm.com/butterfly/
+  app:
+    url-prefix: https://app.servitiumcrm.com/butterfly/
+
+aws:
+  s3:
+    captcha-bucket: captcha-bucket
