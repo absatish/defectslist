@@ -16,6 +16,7 @@ public class HttpRequestHeadersService {
     public HttpEntity<String> getHttpEntityForServitiumCrm(final ContentRequest contentRequest, final int totalRecords) {
         final HttpHeaders headers = new HttpHeaders();
         final String defectiveItemsFormData = "product=0&model=&wStatus=0&technician=0&part_no=&JobSheet=&bin1=DEF&REFRESH=&remarks=&hidFlag=TRUE&RecordCount=15&editFlag=T&SortBy=null&SortDir=null&LastSortBy=&LastSortDir=&ReSort=&FindI=&AllRecs=yes&txtPageSize=" + totalRecords;
+        addCommonHeaders(headers);
         headers.add(HttpHeaders.COOKIE, "JSESSIONID=" + contentRequest.getJSessionId() + "; SERVERID=" + contentRequest.getServer());
         headers.add(HttpHeaders.REFERER, REFERER);
         headers.add(HttpHeaders.ACCEPT_LANGUAGE, "en-GB,en-US;q=0.9,en;q=0.8,hi;q=0.7,te;q=0.6");

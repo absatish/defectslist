@@ -33,10 +33,6 @@ public class GridItemFactory {
             }
             lineNumber++;
         }
-        gridItem.setProduct("ProductProductProductProductProductProductProduct");
-        gridItem.setModel("ProductProductProductProductProductProductProduct");
-        gridItem.setSerialNumber("ProductProductProductProductProductProductProduct");
-        gridItem.setDop("ProductProductProductProductProductProductProduct");
         gridItem.setBranchName("ELURU");
         gridItem.setActualFault("Shortage");
         gridItem.setComplaintNumber(complainId);

@@ -197,7 +197,7 @@ public class InwarrantyDefectItemService {
             executorService.shutdown();
             final List<GridItem> gridItems = gridItemsPartitions.stream()
                     .flatMap(List::stream)
-                    .sorted(Comparator.comparingInt(item -> DefectivePartType.valueOf(item.getSpareName()).getSortOrder()))
+                    .sorted(Comparator.comparingInt(item -> DefectivePartType.getPartTypeByName(item.getSpareName()).getSortOrder()))
                     .collect(Collectors.toList());
             gridItemsMap.put(key, gridItems);
         });
