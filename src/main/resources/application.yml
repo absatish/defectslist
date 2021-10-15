@@ -1,6 +1,3 @@
-server:
-  port: 7877
-
 servitium:
   butterfly:
     url-prefix: https://butterfly.servitiumcrm.com/butterfly/
