@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public enum DefectivePartType {
     MOTOR("MOTOR", 0),
-    JARS("SS", 5),
+    JARS("JAR", 5),
     DRUM("DRUM", 4),
     ARMATURE("ARMATURE", 1),
     BODY("BODY", 3),
@@ -36,7 +36,9 @@ public enum DefectivePartType {
 
     public boolean matches(final String line) {
         if (partType.equals(MOTOR.getPartType())) {
-            return line.contains(MOTOR.getPartType()) && !line.contains("COUPLER") && !line.contains("LEG");
+            return line.contains(MOTOR.getPartType()) && !line.contains("COUPLER") && !line.contains("LEG")
+                    && !line.contains("CARBON") && !line.contains("BRUSH") && !line.contains("BOTTOM")
+                    && !line.contains("COVER");
         } else if (partType.equals(JARS.getPartType())) {
             return line.contains(JARS.getPartType()) && !line.contains("ASSEMBLY");
         }
