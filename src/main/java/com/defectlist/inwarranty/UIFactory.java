@@ -27,22 +27,25 @@ public class UIFactory {
                 "<div class=\"container\" style=\"width:500px; align:center;\">\n" +
                 "\t\t\t\t<div class=\"form-group\">\n" +
                 "\t\t\t\t  <label class=\"control-label col-sm-4\" style=\"margin-top:0.5%;\" for=\"Username\">Username</label>\n" +
-                "\t\t\t\t  <div class=\"col-sm-8\">  " +
-                " <input class=form-control placeholder=username type=text name=username></div><br>" +
+                "\t\t\t\t  <div class=\"col-sm-6\">  " +
+                " <input class=form-control placeholder=username type=text name=username></div>" +
+                "<div class=\"col-sm-2\" style=\"margin-left:0px;\" id=error-username></div>" +
                 "\t\t\t\t<div class=\"form-group\">\n" +
                 "\t\t\t\t  <label class=\"control-label col-sm-4\" style=\"margin-top:0.5%;\" for=\"Password\">Password</label>\n" +
-                "\t\t\t\t  <div class=\"col-sm-8\">  " +
-                "<input class=form-control placeholder=password type=password name=password></div><br>" +
+                "\t\t\t\t  <div class=\"col-sm-6\">  " +
+                "<input class=form-control placeholder=password type=password name=password></div>" +
+                "<div class=\"col-sm-2\" style=\"margin-left:0px;\" id=error-password></div>" +
                 "\t\t\t\t<div class=\"form-group\">\n" +
                 "\t\t\t\t  <label class=\"control-label col-sm-4\" style=\"margin-top:0.5%;\" for=\"callId\"><img id=captcha2 src=" + captchaUrl + "> </label>\n" +
-                "\t\t\t\t  <div class=\"col-sm-8\">  " +
-                "<input class=form-control type=text name=captcha placeholder=captcha id=captcha></div><br>" +
+                "\t\t\t\t  <div class=\"col-sm-6\">  " +
+                "<input class=form-control type=text name=captcha placeholder=captcha id=captcha></div>" +
+                "<div class=\"col-sm-2\" style=\"margin-left:0px;\" id=error-captcha></div>" +
                 "<input type=hidden name=id value=" + jSessionId + ">" +
                 "<input type=hidden name=server value=" + serverId + ">" +
-                "\t\t\t\t<div class=\"form-group\">\n" +
-                "\t\t\t\t  <label class=\"control-label col-sm-9\" style=\"margin-top:0.5%;\" for=\"callId\"></label>\n" +
-                "\t\t\t\t  <div class=\"col-sm-2\">  " +
-                "<input class='btn btn-default' type=submit onclick=javascript:login()>" +
+                "\t\t\t\t<hr><div class=\"form-group\">\n" +
+                "\t\t\t\t  <div class=\"col-sm-10\">  " +
+                "<input class='btn btn-default' style='align:right;' name='Login' " +
+                "value='Login' type=submit onclick=javascript:login()></div></div>" +
                 "</table></center>" +
                 "</form>\n" +
                 "</body>\n" +

@@ -1,5 +1,6 @@
 package com.defectlist.inwarranty.httprequestheaders;
 
+import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
 import lombok.*;
 
 @Data
@@ -38,6 +39,24 @@ public class LoginRequest {
 
     public String getServer() {
         return server;
+    }
+
+    public void validate() throws InvalidLoginRequestException {
+        String errorMessage = "<script type=text/javascript>";
+        final String originalText = "<script type=text/javascript>";
+
+        if (userid.isEmpty() || userid.isBlank()) {
+            errorMessage += "document.getElementById('error-username').innerHTML = '<font color=red size=1px>Username&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
+        }
+        if (password.isBlank() || password.isEmpty()) {
+            errorMessage += "document.getElementById('error-password').innerHTML = '<font color=red size=1px>Password&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
+        }
+        if (j_captcha_response.isEmpty() || j_captcha_response.isBlank()) {
+            errorMessage += "document.getElementById('error-captcha').innerHTML = '<font color=red size=1px>Captcha&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
+        }
+        if (!(errorMessage.equals(originalText))) {
+            throw new InvalidLoginRequestException(errorMessage + "</script>");
+        }
     }
 
 }

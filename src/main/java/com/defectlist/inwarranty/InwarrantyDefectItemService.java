@@ -94,9 +94,7 @@ public class InwarrantyDefectItemService {
         return servitiumCrmConnector.readContentFromServitiumCrm(new ContentRequest(jSessionIdFromCache.get(), serverIdFromCache.get()));
     }
 
-    public String login(final String username, final String password, final String jSessionId,
-                        final String server, final String captcha) {
-        final LoginRequest loginRequest = new LoginRequest("0", username, password, captcha, jSessionId, server);
+    public String login(final LoginRequest loginRequest) {
         if (HttpStatus.OK.equals(servitiumCrmConnector.login(loginRequest))) {
             return getCallIds();
         } else {
@@ -182,6 +180,7 @@ public class InwarrantyDefectItemService {
         final Map<String, List<GridItem>> gridItemsMap = new HashMap<>();
         callIds.forEach((key, value) -> {
             final List<String> complaintIds = Arrays.asList(value.split(DELIMITER_COMMA));
+
 //            final List<List<String>> complaintIdPartitions = ListUtils.partition(complaintIds, Math.min(complaintIds.size(), PARTITION_SIZE));
 //            final ExecutorService executorService = Executors.newFixedThreadPool(Math.min(complaintIdPartitions.size(), THREAD_POOL_SIZE));
 //            final List<CompletableFuture<List<GridItem>>> gridItemsToBeFetched = complaintIdPartitions.stream()
@@ -199,6 +198,7 @@ public class InwarrantyDefectItemService {
 //                    .flatMap(List::stream)
 //                    .sorted(Comparator.comparingInt(item -> DefectivePartType.getPartTypeByName(item.getSpareName()).getSortOrder()))
 //                    .collect(Collectors.toList());
+
             final List<GridItem> gridItems = complaintIds.stream()
                     .filter(complaintId -> complaintId.length() == 12)
                     .map(complaintId -> getJobSheet(key, complaintId))
