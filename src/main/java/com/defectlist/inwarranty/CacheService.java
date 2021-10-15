@@ -29,4 +29,8 @@ public class CacheService {
     public void put(final String cacheName, final String key, final Object object) {
         cacheManager.getCache(cacheName).put(key, object);
     }
+
+    public void evict(final String cacheName, final String key) {
+        cacheManager.getCache(cacheName).evict(key);
+    }
 }

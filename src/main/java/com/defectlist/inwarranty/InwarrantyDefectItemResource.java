@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.MalformedURLException;
+
 
 @RestController
 @RequestMapping("/app/v1/defects")
@@ -18,12 +20,12 @@ public class InwarrantyDefectItemResource {
         this.inwarrantyDefectItemService = inwarrantyDefectItemService;
     }
 
-    @GetMapping
+    @GetMapping()
     public String initialPage() {
         return inwarrantyDefectItemService.getPreload();
     }
 
-    @GetMapping("/login")
+    @GetMapping(path = "/login")
     public String login(
             @RequestParam(value = "username") final String username,
             @RequestParam(value = "password") final String password,
@@ -31,6 +33,11 @@ public class InwarrantyDefectItemResource {
             @RequestParam("id") final String jSessionId,
             @RequestParam(value = "server", required = false) final String server) {
         return inwarrantyDefectItemService.login(username, password, jSessionId, server, captcha);
+    }
+
+    @GetMapping("/items")
+    public String getItems() {
+        return inwarrantyDefectItemService.getDocuments();
     }
 
 }

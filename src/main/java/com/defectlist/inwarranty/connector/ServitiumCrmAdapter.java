@@ -4,6 +4,7 @@ import com.defectlist.inwarranty.model.CaptchaResponse;
 import com.defectlist.inwarranty.httprequestheaders.ContentRequest;
 import com.defectlist.inwarranty.httprequestheaders.HttpRequestHeadersService;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -14,8 +15,12 @@ import javax.swing.text.Document;
 import java.util.List;
 import java.util.Objects;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @Component
 public class ServitiumCrmAdapter implements ServitiumCrmConnector {
+
+    private static final Logger LOGGER = getLogger(ServitiumCrmAdapter.class);
 
     private final HttpRequestHeadersService httpRequestHeadersService;
 
@@ -62,7 +67,11 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
                 httpRequestHeadersService.getHttpEntityForLogin(loginRequest),
                 new ParameterizedTypeReference<String>() {
                 });
-        return Objects.requireNonNull(exchange.getBody()).contains("welcomelist.jsp") ? HttpStatus.OK : HttpStatus.UNAUTHORIZED;
+        if (Objects.requireNonNull(exchange.getBody()).contains("welcomelist.jsp")) {
+            return HttpStatus.OK;
+        }
+        LOGGER.info("Login request failed. Content : {}", exchange.getBody());
+        return HttpStatus.UNAUTHORIZED;
     }
 
     @Override
