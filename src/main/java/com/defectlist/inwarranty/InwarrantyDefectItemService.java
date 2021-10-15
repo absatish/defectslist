@@ -182,22 +182,26 @@ public class InwarrantyDefectItemService {
         final Map<String, List<GridItem>> gridItemsMap = new HashMap<>();
         callIds.forEach((key, value) -> {
             final List<String> complaintIds = Arrays.asList(value.split(DELIMITER_COMMA));
-            final List<List<String>> complaintIdPartitions = ListUtils.partition(complaintIds, Math.min(complaintIds.size(), PARTITION_SIZE));
-            final ExecutorService executorService = Executors.newFixedThreadPool(Math.min(complaintIdPartitions.size(), THREAD_POOL_SIZE));
-            final List<CompletableFuture<List<GridItem>>> gridItemsToBeFetched = complaintIdPartitions.stream()
-                    .map(partition -> CompletableFuture.supplyAsync(
-                            () -> partition.stream()
-                                    .filter(complaintId -> complaintId.length() == 12)
-                                    .map(complaintId -> getJobSheet(key, complaintId))
-                                    .collect(Collectors.toList()), executorService))
-                    .collect(Collectors.toList());
-            final List<List<GridItem>> gridItemsPartitions = gridItemsToBeFetched.stream()
-                    .map(CompletableFuture::join)
-                    .collect(Collectors.toList());
-            executorService.shutdown();
-            final List<GridItem> gridItems = gridItemsPartitions.stream()
-                    .flatMap(List::stream)
-                    .sorted(Comparator.comparingInt(item -> DefectivePartType.getPartTypeByName(item.getSpareName()).getSortOrder()))
+//            final List<List<String>> complaintIdPartitions = ListUtils.partition(complaintIds, Math.min(complaintIds.size(), PARTITION_SIZE));
+//            final ExecutorService executorService = Executors.newFixedThreadPool(Math.min(complaintIdPartitions.size(), THREAD_POOL_SIZE));
+//            final List<CompletableFuture<List<GridItem>>> gridItemsToBeFetched = complaintIdPartitions.stream()
+//                    .map(partition -> CompletableFuture.supplyAsync(
+//                            () -> partition.stream()
+//                                    .filter(complaintId -> complaintId.length() == 12)
+//                                    .map(complaintId -> getJobSheet(key, complaintId))
+//                                    .collect(Collectors.toList()), executorService))
+//                    .collect(Collectors.toList());
+//            final List<List<GridItem>> gridItemsPartitions = gridItemsToBeFetched.stream()
+//                    .map(CompletableFuture::join)
+//                    .collect(Collectors.toList());
+//            executorService.shutdown();
+//            final List<GridItem> gridItems = gridItemsPartitions.stream()
+//                    .flatMap(List::stream)
+//                    .sorted(Comparator.comparingInt(item -> DefectivePartType.getPartTypeByName(item.getSpareName()).getSortOrder()))
+//                    .collect(Collectors.toList());
+            final List<GridItem> gridItems = complaintIds.stream()
+                    .filter(complaintId -> complaintId.length() == 12)
+                    .map(complaintId -> getJobSheet(key, complaintId))
                     .collect(Collectors.toList());
             gridItemsMap.put(key, gridItems);
         });
