@@ -67,8 +67,12 @@
 				<version>2.2.0</version>
 				<configuration>
 					<version>1</version>
-					<projectId>winter-citizen-328416</projectId>
+					<projectId>GCLOUD_CONFIG</projectId>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
