@@ -1,5 +1,6 @@
 package com.defectlist.inwarranty.connector;
 
+import com.defectlist.inwarranty.exception.NoDataFoundException;
 import com.defectlist.inwarranty.model.CaptchaResponse;
 import com.defectlist.inwarranty.httprequestheaders.ContentRequest;
 import com.defectlist.inwarranty.httprequestheaders.HttpRequestHeadersService;
@@ -51,6 +52,9 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
                 new ParameterizedTypeReference<String>() {
                 });
         final String body = exchange.getBody();
+        if (body.contains("Data not found")) {
+            throw new NoDataFoundException("No pending bills found.. Sukheebhava..!");
+        }
         final int totalRecords = Integer.parseInt(body.substring(body.indexOf("<input type='hidden' name='RecordCount'"), body.indexOf("<input type='hidden' name='editFlag'"))
                 .replaceAll("<input type='hidden' name='RecordCount'","").split(">")[0]
                 .replaceAll("value=","")

@@ -1,6 +1,7 @@
 package com.defectlist.inwarranty;
 
 import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
+import com.defectlist.inwarranty.exception.NoDataFoundException;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
 import com.defectlist.inwarranty.utils.RequestParameterResolver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,9 @@ public class InwarrantyDefectItemResource {
             return inwarrantyDefectItemService.login(loginRequest);
         } catch (final InvalidLoginRequestException invalidLoginRequestException) {
             return initialPage() + invalidLoginRequestException.getMessage();
-        } catch (final Exception exception) {
+        } catch (final NoDataFoundException noDataFoundException) {
+            return "<font color=red>" + noDataFoundException.getMessage() + "</font><br>";
+        } catch(final Exception exception) {
             return UNKNOWN_ERROR + exception.getMessage();
         }
     }
