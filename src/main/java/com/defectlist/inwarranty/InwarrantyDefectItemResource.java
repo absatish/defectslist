@@ -23,6 +23,7 @@ public class InwarrantyDefectItemResource {
     private static final String J_SESSION_ID = "id";
     private static final String SERVER_NAME = "server";
     private static final String INCLUDE_OTHER = "includeOther";
+    private static final String ON = "on";
 
     private static final String UNKNOWN_ERROR = "<font color=red>Unknown error occurred. Please try after in few seconds.</font>" +
             "<br>";
@@ -67,7 +68,7 @@ public class InwarrantyDefectItemResource {
                 RequestParameterResolver.getValue(requestParams, CAPTCHA),
                 RequestParameterResolver.getValue(requestParams, J_SESSION_ID),
                 RequestParameterResolver.getValue(requestParams, SERVER_NAME),
-                Boolean.getBoolean(RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER)));
+                RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER).equalsIgnoreCase(ON));
     }
 
 }
