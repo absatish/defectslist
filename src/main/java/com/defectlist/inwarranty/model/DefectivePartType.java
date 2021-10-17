@@ -1,6 +1,8 @@
 package com.defectlist.inwarranty.model;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public enum DefectivePartType {
     MOTOR("MOTOR", 0),
@@ -32,6 +34,12 @@ public enum DefectivePartType {
                 .filter(type -> type.getPartType().equals(name))
                 .findFirst()
                 .orElse(OTHER);
+    }
+
+    public static List<DefectivePartType> getAvailablePartTypes(final boolean includeOther) {
+        return Arrays.stream(DefectivePartType.values())
+                .filter(type -> !type.equals(OTHER) || includeOther)
+                .collect(Collectors.toList());
     }
 
     public boolean matches(final String line) {

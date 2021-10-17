@@ -8,13 +8,14 @@ import lombok.*;
 public class LoginRequest {
 
     public LoginRequest(final String mobile, final String userid, final String password, final String j_captcha_response,
-                        final String jSessionId, final String server) {
+                        final String jSessionId, final String server, final boolean printOthers) {
         this.mobile = mobile;
         this.userid = userid;
         this.password = password;
         this.j_captcha_response = j_captcha_response;
         this.jSessionId = jSessionId;
         this.server =server;
+        this.printOthers = printOthers;
     }
 
     private final String mobile;
@@ -29,6 +30,8 @@ public class LoginRequest {
 
     private final String server;
 
+    private final boolean printOthers;
+
     public String getCredentialsAndCaptcha() {
         return "mobile="+mobile+"&userid="+userid+"&password="+password+"&j_captcha_response="+j_captcha_response;
     }
@@ -39,6 +42,10 @@ public class LoginRequest {
 
     public String getServer() {
         return server;
+    }
+
+    public boolean includeOthers() {
+        return printOthers;
     }
 
     public void validate() throws InvalidLoginRequestException {

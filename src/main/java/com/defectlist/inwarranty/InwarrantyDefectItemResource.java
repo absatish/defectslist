@@ -22,6 +22,7 @@ public class InwarrantyDefectItemResource {
     private static final String CAPTCHA = "captcha";
     private static final String J_SESSION_ID = "id";
     private static final String SERVER_NAME = "server";
+    private static final String INCLUDE_OTHER = "includeOther";
 
     private static final String UNKNOWN_ERROR = "<font color=red>Unknown error occurred. Please try after in few seconds.</font>" +
             "<br>";
@@ -47,7 +48,8 @@ public class InwarrantyDefectItemResource {
         } catch (final InvalidLoginRequestException invalidLoginRequestException) {
             return initialPage() + invalidLoginRequestException.getMessage();
         } catch (final NoDataFoundException noDataFoundException) {
-            return "<font color=red>" + noDataFoundException.getMessage() + "</font><br>";
+            return "<hr><center><font color=green size=5px>" + noDataFoundException.getMessage()
+                    + "</font></center></hr><br>";
         } catch(final Exception exception) {
             return UNKNOWN_ERROR + exception.getMessage();
         }
@@ -64,7 +66,8 @@ public class InwarrantyDefectItemResource {
                 RequestParameterResolver.getValue(requestParams, PASSWORD),
                 RequestParameterResolver.getValue(requestParams, CAPTCHA),
                 RequestParameterResolver.getValue(requestParams, J_SESSION_ID),
-                RequestParameterResolver.getValue(requestParams, SERVER_NAME));
+                RequestParameterResolver.getValue(requestParams, SERVER_NAME),
+                Boolean.getBoolean(RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER)));
     }
 
 }

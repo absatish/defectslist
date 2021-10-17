@@ -17,7 +17,66 @@ public class UIFactory {
                 "\t<head>\n" +
                 "\t\t<title>:: Generate Defectives List ::</title>\n" +
                 "\t\t<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\">\n" +
-                "</script>\n" +
+                "<style>" +
+                ".switch {\n" +
+                "  position: relative;\n" +
+                "  display: inline-block;\n" +
+                "  width: 52px;\n" +
+                "  height: 24px;\n" +
+                "}\n" +
+                "\n" +
+                ".switch input { \n" +
+                "  opacity: 0;\n" +
+                "  width: 0;\n" +
+                "  height: 0;\n" +
+                "}\n" +
+                "\n" +
+                ".slider {\n" +
+                "  position: absolute;\n" +
+                "  cursor: pointer;\n" +
+                "  top: 0;\n" +
+                "  left: 0;\n" +
+                "  right: 0;\n" +
+                "  bottom: 0;\n" +
+                "  background-color: #ccc;\n" +
+                "  -webkit-transition: .4s;\n" +
+                "  transition: .4s;\n" +
+                "}\n" +
+                "\n" +
+                ".slider:before {\n" +
+                "  position: absolute;\n" +
+                "  content: \"\";\n" +
+                "  height: 18px;\n" +
+                "  width: 18px;\n" +
+                "  left: 4px;\n" +
+                "  bottom: 3px;\n" +
+                "  background-color: white;\n" +
+                "  -webkit-transition: .4s;\n" +
+                "  transition: .4s;\n" +
+                "}\n" +
+                "\n" +
+                "input:checked + .slider {\n" +
+                "  background-color: #2196F3;\n" +
+                "}\n" +
+                "\n" +
+                "input:focus + .slider {\n" +
+                "  box-shadow: 0 0 1px #2196F3;\n" +
+                "}\n" +
+                "\n" +
+                "input:checked + .slider:before {\n" +
+                "  -webkit-transform: translateX(26px);\n" +
+                "  -ms-transform: translateX(26px);\n" +
+                "  transform: translateX(26px);\n" +
+                "}\n" +
+                "\n" +
+                "/* Rounded sliders */\n" +
+                ".slider.round {\n" +
+                "  border-radius: 35px;\n" +
+                "}\n" +
+                "\n" +
+                ".slider.round:before {\n" +
+                "  border-radius: 50%;\n" +
+                "}</style>" +
                 "\t</head>\n" +
                 "\t<body>\n" +
                 "<center><b><h4>Generate Defectives List</h4></b></center><hr>" +
@@ -40,10 +99,18 @@ public class UIFactory {
                 "\t\t\t\t  <div class=\"col-sm-6\">  " +
                 "<input class=form-control type=text name=captcha placeholder=captcha id=captcha></div>" +
                 "<div class=\"col-sm-2\" style=\"margin-left:0px;\" id=error-captcha></div>" +
+
                 "<input type=hidden name=id value=" + jSessionId + ">" +
                 "<input type=hidden name=server value=" + serverId + ">" +
+
                 "\t\t\t\t<hr><div class=\"form-group\">\n" +
-                "\t\t\t\t  <div class=\"col-sm-10\">  " +
+                "<div class=\"col-sm-4\">Include&nbsp;all&nbsp;complaints</div>" +
+                "<label class=\"switch col-sm-6\">\n" +
+                "  <input name=includeOther type=\"checkbox\">\n" +
+                "  <span class=\"slider round\"></span>\n" +
+                "</label>" +
+                "\t\t\t\t<hr><div class=\"form-group\">\n" +
+                "\t\t\t\t  <div class=\"col-sm-12\">  " +
                 "<input class='btn btn-default' style='align:right;' name='Login' " +
                 "value='Login' type=submit onclick=javascript:login()></div></div>" +
                 "</table></center>" +

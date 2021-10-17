@@ -73,16 +73,6 @@ public class InwarrantyDefectItemService {
 
     public String getDocuments() {
         final String callIds = "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
                 "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960";
         final Map<String, String> map =  Map.of(DefectivePartType.MOTOR.getPartType(), callIds);
         return getGridItems(map);
@@ -96,7 +86,7 @@ public class InwarrantyDefectItemService {
 
     public String login(final LoginRequest loginRequest) {
         if (HttpStatus.OK.equals(servitiumCrmConnector.login(loginRequest))) {
-            return getCallIds();
+            return getCallIds(loginRequest.includeOthers());
         } else {
             return "<font color=red>Something went wrong. please try logging again..!</font><br><hr>" + getPreload();
         }
@@ -142,12 +132,13 @@ public class InwarrantyDefectItemService {
         return gridItemFactory.buildGridItem(compalintId, spareName, response);
     }
 
-    private String getCallIds() {
+    private String getCallIds(final boolean includeOther) {
         final String responseBody = getContent();
         final String lineRegex = "<input type='hidden' size='50' name = 'Call_Id";
         final String[] data = responseBody.split("\n");
         final Map<String, String> callIds = new HashMap<>();
-        Arrays.stream(DefectivePartType.values()).forEach(partType -> callIds.put(partType.getPartType(), ""));
+        DefectivePartType.getAvailablePartTypes(includeOther)
+                .forEach(partType -> callIds.put(partType.getPartType(), ""));
         int localLineCount = -1;
         String tempCallId = "";
         boolean started = false;
@@ -160,8 +151,10 @@ public class InwarrantyDefectItemService {
             }
             if (localLineCount == 6 && started) {
                 final DefectivePartType partType = resolvePartType(line);
-                final String delimiter = callIds.get(partType.getPartType()).isBlank() ? "" : DELIMITER_COMMA;
-                callIds.put(partType.getPartType(), callIds.get(partType.getPartType()).concat(delimiter + tempCallId));
+                if (!partType.equals(DefectivePartType.OTHER) || includeOther) {
+                    final String delimiter = callIds.get(partType.getPartType()).isBlank() ? "" : DELIMITER_COMMA;
+                    callIds.put(partType.getPartType(), callIds.get(partType.getPartType()).concat(delimiter + tempCallId));
+                }
                 tempCallId = "";
                 localLineCount = -1;
                 started = false;
