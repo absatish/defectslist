@@ -1,5 +1,6 @@
 package com.defectlist.inwarranty.connector;
 
+import com.defectlist.inwarranty.httprequestheaders.LogoutRequest;
 import com.defectlist.inwarranty.model.CaptchaResponse;
 import com.defectlist.inwarranty.httprequestheaders.ContentRequest;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
@@ -19,5 +20,7 @@ public interface ServitiumCrmConnector {
     CaptchaResponse getHttpHeaders();
 
     String getJobSheet(final String complaintId);
+
+    void logout(final LogoutRequest logoutRequest);
 
 }

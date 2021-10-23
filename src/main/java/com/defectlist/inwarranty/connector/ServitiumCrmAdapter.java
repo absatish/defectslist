@@ -1,6 +1,7 @@
 package com.defectlist.inwarranty.connector;
 
 import com.defectlist.inwarranty.exception.NoDataFoundException;
+import com.defectlist.inwarranty.httprequestheaders.LogoutRequest;
 import com.defectlist.inwarranty.model.CaptchaResponse;
 import com.defectlist.inwarranty.httprequestheaders.ContentRequest;
 import com.defectlist.inwarranty.httprequestheaders.HttpRequestHeadersService;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestOperations;
 
@@ -84,7 +86,7 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
                 servitiumCrmUrlService.getCaptchaImage(),
                 HttpMethod.GET,
                 HttpEntity.EMPTY,
-                new ParameterizedTypeReference<byte []>() {
+                new ParameterizedTypeReference<>() {
                 });
         return new CaptchaResponse(exchange.getHeaders(), exchange.getBody());
     }
@@ -95,10 +97,24 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
                 servitiumCrmUrlService.getJobSheet(),
                 HttpMethod.GET,
                 HttpEntity.EMPTY,
-                new ParameterizedTypeReference<String>() {
+                new ParameterizedTypeReference<>() {
                 },
                 complaintId);
         return exchange.getBody();
+    }
+
+    @Async
+    @Override
+    public void logout(final LogoutRequest logoutRequest) {
+        final ResponseEntity<String> exchange = restOperations.exchange(
+                servitiumCrmUrlService.getLogout(),
+                HttpMethod.POST,
+                httpRequestHeadersService.getHttpEntityForLogout(logoutRequest),
+                new ParameterizedTypeReference<>() {
+                });
+        if (!HttpStatus.OK.equals(exchange.getStatusCode())) {
+            LOGGER.error("Error while logging off.");
+        }
     }
 
     private String readContentFromServitiumCrm(final ContentRequest contentRequest, final int totalRecords) {

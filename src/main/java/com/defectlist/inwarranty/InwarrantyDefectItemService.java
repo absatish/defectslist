@@ -5,6 +5,7 @@ import com.defectlist.inwarranty.configuration.CacheType;
 import com.defectlist.inwarranty.connector.ServitiumCrmConnector;
 import com.defectlist.inwarranty.httprequestheaders.ContentRequest;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
+import com.defectlist.inwarranty.httprequestheaders.LogoutRequest;
 import com.defectlist.inwarranty.model.CaptchaResponse;
 import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
@@ -42,7 +43,7 @@ public class InwarrantyDefectItemService {
     private static final String KEY_NAME = "captcha.jpg";
 
     private static final int PARTITION_SIZE = 3;
-    private static final int THREAD_POOL_SIZE = 5;
+    private static final int THREAD_POOL_SIZE = 3;
 
     private final ServitiumCrmConnector servitiumCrmConnector;
 
@@ -58,11 +59,11 @@ public class InwarrantyDefectItemService {
 
     @Autowired
     public InwarrantyDefectItemService(final ServitiumCrmConnector servitiumCrmConnector,
-                                       final S3Service s3Service,
-                                       final CacheService cacheService,
-                                       @Value("${aws.s3.captcha-bucket}") final String bucketName,
-                                       final UIFactory uiFactory,
-                                       final GridItemFactory gridItemFactory) {
+           final S3Service s3Service,
+           final CacheService cacheService,
+           @Value("${aws.s3.captcha-bucket}") final String bucketName,
+           final UIFactory uiFactory,
+           final GridItemFactory gridItemFactory) {
         this.servitiumCrmConnector = servitiumCrmConnector;
         this.s3Service = s3Service;
         this.cacheService = cacheService;
@@ -71,55 +72,43 @@ public class InwarrantyDefectItemService {
         this.gridItemFactory = gridItemFactory;
     }
 
-    public String getDocuments() {
-        final String callIds = "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960," +
-                "B21090200621,B21083100497,B21083100722,B21090100328,B21090200618,B21090202365,B21090200960";
-        final Map<String, String> map =  Map.of(DefectivePartType.MOTOR.getPartType(), callIds);
-        return getGridItems(map);
-    }
-
-    public String getContent() {
-        final Optional<String> jSessionIdFromCache = cacheService.get(CacheType.SESSION.getCacheName(), JSESSION_ID, String.class);
-        final Optional<String> serverIdFromCache = cacheService.get(CacheType.SESSION.getCacheName(), SERVER_ID, String.class);
-        return servitiumCrmConnector.readContentFromServitiumCrm(new ContentRequest(jSessionIdFromCache.get(), serverIdFromCache.get()));
-    }
-
     public String login(final LoginRequest loginRequest) {
         if (HttpStatus.OK.equals(servitiumCrmConnector.login(loginRequest))) {
-            return getCallIds(loginRequest.includeOthers());
+            final String content = getCallIds(loginRequest.includeOthers());
+            servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
+            return content;
         } else {
-            return "<font color=red>Something went wrong. please try logging again..!</font><br><hr>" + getPreload();
+            return "<font color=red>Something went wrong. please try to <a href='/app/v1/defects'>login</a> again..!</font><br><hr>" + getPreload();
         }
     }
 
     public String getPreload() {
 
-        final Optional<String> jSessionIdFromCache = cacheService.get(CacheType.SESSION.getCacheName(), JSESSION_ID, String.class);
-        final Optional<String> serverIdFromCache = cacheService.get(CacheType.SESSION.getCacheName(), SERVER_ID, String.class);
+        String jSessionId;
+        String serverId;
 
-        final String jSessionId;
-        final String serverId;
-
-        if (jSessionIdFromCache.isEmpty()) {
-            LOGGER.info("No session values found in cache. retrieve fresh values");
-            final CaptchaResponse captchaResponse = servitiumCrmConnector.getHttpHeaders();
-            s3Service.upload(bucketName, KEY_NAME, captchaResponse.getImageBytes());
+        LOGGER.info("No session values found in cache. retrieve fresh values");
+        final CaptchaResponse captchaResponse = servitiumCrmConnector.getHttpHeaders();
+        s3Service.upload(bucketName, KEY_NAME, captchaResponse.getImageBytes());
+        try {
             final List<String> cookies = captchaResponse.getHttpHeaders().getValuesAsList("set-cookie");
-            try {
-                jSessionId = cookies.get(0).substring(JSESSION_ID_PREFIX.length()).split(DELIMITER_SEMICOLON)[0];
-                serverId = cookies.get(1).substring(SERVER_ID_PREFIX.length()).split(DELIMITER_SEMICOLON)[0];
-            } catch (final Exception exception) {
-                LOGGER.error("An exception occurred while trying to fetch headers.", exception);
-                return "<font color=red>Something went wrong..! Please try again after few minutes..!</font><br>";
-            }
+
+            jSessionId = cookies.get(0).substring(JSESSION_ID_PREFIX.length()).split(DELIMITER_SEMICOLON)[0];
+            serverId = cookies.get(1).substring(SERVER_ID_PREFIX.length()).split(DELIMITER_SEMICOLON)[0];
+
             LOGGER.info("put session values into cache, jSessionId : {}", jSessionId);
-            LOGGER.info("put session values into cache, serverId : {}", serverId);
             cacheService.put(CacheType.SESSION.getCacheName(), JSESSION_ID, jSessionId);
+            LOGGER.info("put session values into cache, serverId : {}", serverId);
+
             cacheService.put(CacheType.SESSION.getCacheName(), SERVER_ID, serverId);
-        } else {
-            jSessionId = jSessionIdFromCache.get();
-            serverId = serverIdFromCache.get();
-            LOGGER.info("session values fetched from cache : jSessionId : {}, serverId : {}", jSessionId, serverId);
+        } catch (final IndexOutOfBoundsException indexOutOfBoundsException) {
+
+            jSessionId = cacheService.get(CacheType.SESSION.getCacheName(), JSESSION_ID, String.class).get();
+            serverId = cacheService.get(CacheType.SESSION.getCacheName(), SERVER_ID, String.class).get();
+
+        } catch (final Exception exception) {
+            LOGGER.error("An exception occurred while trying to fetch headers.", exception);
+            return "<font color=red>Something went wrong..! Please try again after few minutes..!</font><br>";
         }
         final URL url = s3Service.generatePresignedUrl(bucketName, KEY_NAME, Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
         return uiFactory.getLoginPage(jSessionId, serverId, url);
@@ -161,12 +150,7 @@ public class InwarrantyDefectItemService {
             }
             localLineCount++;
         }
-        final String gridItems = getGridItems(callIds);
-        LOGGER.info("Evicting cache");
-        cacheService.evict(CacheType.SESSION.getCacheName(), JSESSION_ID);
-        cacheService.evict(CacheType.SESSION.getCacheName(), SERVER_ID);
-        LOGGER.info("Evicted cache");
-        return gridItems;
+        return getGridItems(callIds);
     }
 
     private String getGridItems(final Map<String, String> callIds) {
@@ -174,28 +158,13 @@ public class InwarrantyDefectItemService {
         callIds.forEach((key, value) -> {
             final List<String> complaintIds = Arrays.asList(value.split(DELIMITER_COMMA));
 
-//            final List<List<String>> complaintIdPartitions = ListUtils.partition(complaintIds, Math.min(complaintIds.size(), PARTITION_SIZE));
-//            final ExecutorService executorService = Executors.newFixedThreadPool(Math.min(complaintIdPartitions.size(), THREAD_POOL_SIZE));
-//            final List<CompletableFuture<List<GridItem>>> gridItemsToBeFetched = complaintIdPartitions.stream()
-//                    .map(partition -> CompletableFuture.supplyAsync(
-//                            () -> partition.stream()
-//                                    .filter(complaintId -> complaintId.length() == 12)
-//                                    .map(complaintId -> getJobSheet(key, complaintId))
-//                                    .collect(Collectors.toList()), executorService))
-//                    .collect(Collectors.toList());
-//            final List<List<GridItem>> gridItemsPartitions = gridItemsToBeFetched.stream()
-//                    .map(CompletableFuture::join)
-//                    .collect(Collectors.toList());
-//            executorService.shutdown();
-//            final List<GridItem> gridItems = gridItemsPartitions.stream()
-//                    .flatMap(List::stream)
-//                    .sorted(Comparator.comparingInt(item -> DefectivePartType.getPartTypeByName(item.getSpareName()).getSortOrder()))
-//                    .collect(Collectors.toList());
+            //final List<GridItem> gridItems = getJobSheetsAsync(complaintIds, key);
 
             final List<GridItem> gridItems = complaintIds.stream()
                     .filter(complaintId -> complaintId.length() == 12)
                     .map(complaintId -> getJobSheet(key, complaintId))
                     .collect(Collectors.toList());
+
             gridItemsMap.put(key, gridItems);
         });
         final URL verticleImage = s3Service
@@ -203,6 +172,28 @@ public class InwarrantyDefectItemService {
         final URL horizontalImage = s3Service
                 .generatePresignedUrl(bucketName, "cut.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
         return uiFactory.buildGridPage(gridItemsMap, verticleImage, horizontalImage);
+    }
+
+    private List<GridItem> getJobSheetsAsync(final List<String> complaintIds, final String key) {
+        final List<List<String>> complaintIdPartitions = ListUtils.partition(complaintIds, Math.min(complaintIds.size(), PARTITION_SIZE));
+        final ExecutorService executorService = Executors.newFixedThreadPool(Math.min(complaintIdPartitions.size(), THREAD_POOL_SIZE));
+
+        final List<CompletableFuture<List<GridItem>>> gridItemsToBeFetched = complaintIdPartitions.stream()
+                .map(partition -> CompletableFuture.supplyAsync(
+                        () -> partition.stream()
+                                .filter(complaintId -> complaintId.length() == 12)
+                                .map(complaintId -> getJobSheet(key, complaintId))
+                                .collect(Collectors.toList()), executorService))
+                .collect(Collectors.toList());
+
+        final List<List<GridItem>> gridItemsPartitions = gridItemsToBeFetched.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+        executorService.shutdown();
+
+        return gridItemsPartitions.stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     private DefectivePartType resolvePartType(final String line) {
@@ -213,5 +204,11 @@ public class InwarrantyDefectItemService {
                 .filter(type -> type.matches(typeFromLine))
                 .findFirst()
                 .orElse(DefectivePartType.OTHER);
+    }
+
+    private String getContent() {
+        final Optional<String> jSessionIdFromCache = cacheService.get(CacheType.SESSION.getCacheName(), JSESSION_ID, String.class);
+        final Optional<String> serverIdFromCache = cacheService.get(CacheType.SESSION.getCacheName(), SERVER_ID, String.class);
+        return servitiumCrmConnector.readContentFromServitiumCrm(new ContentRequest(jSessionIdFromCache.get(), serverIdFromCache.get()));
     }
 }

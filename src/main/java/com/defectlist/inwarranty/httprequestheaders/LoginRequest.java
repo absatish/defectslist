@@ -32,8 +32,20 @@ public class LoginRequest {
 
     private final boolean printOthers;
 
+    public String getUserId() {
+        return userid;
+    }
+
     public String getCredentialsAndCaptcha() {
         return "mobile="+mobile+"&userid="+userid+"&password="+password+"&j_captcha_response="+j_captcha_response;
+    }
+
+    public String getCaptcha() {
+        return j_captcha_response;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getJSessionId() {

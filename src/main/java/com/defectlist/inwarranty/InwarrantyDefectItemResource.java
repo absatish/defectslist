@@ -25,7 +25,7 @@ public class InwarrantyDefectItemResource {
     private static final String INCLUDE_OTHER = "includeOther";
     private static final String ON = "on";
 
-    private static final String UNKNOWN_ERROR = "<font color=red>Unknown error occurred. Please try after in few seconds.</font>" +
+    private static final String UNKNOWN_ERROR = "<font color=red>Unknown error occurred. Please try again in few seconds.</font>" +
             "<br>";
 
     private final InwarrantyDefectItemService inwarrantyDefectItemService;
@@ -35,7 +35,7 @@ public class InwarrantyDefectItemResource {
         this.inwarrantyDefectItemService = inwarrantyDefectItemService;
     }
 
-    @GetMapping()
+    @GetMapping
     public String initialPage() {
         return inwarrantyDefectItemService.getPreload();
     }
@@ -54,11 +54,6 @@ public class InwarrantyDefectItemResource {
         } catch(final Exception exception) {
             return UNKNOWN_ERROR + exception.getMessage();
         }
-    }
-
-    @GetMapping("/items")
-    public String getItems() {
-        return inwarrantyDefectItemService.getDocuments();
     }
 
     private LoginRequest buildLoginRequest(final Map<String, String> requestParams) {

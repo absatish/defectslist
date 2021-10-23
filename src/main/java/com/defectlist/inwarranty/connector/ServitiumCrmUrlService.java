@@ -11,6 +11,7 @@ public class ServitiumCrmUrlService {
 
     private static final String CAPTCHA_IMAGE = "CaptchaImg.jpg";
     private static final String LOGON = "logon.do";
+    private static final String LOGOFF = "logoff.do";
     private static final String RENTAL_RETURN = "rentalreturn.report?xmlFileName=rentalreturn_config.xml";
     private static final String JOB_SHEET = "callmanagement/printJobSheet.do?callId={callId}";
 
@@ -18,6 +19,7 @@ public class ServitiumCrmUrlService {
     private final String logon;
     private final String rentalReturn;
     private final String jobSheet;
+    private final String logout;
 
     @Autowired
     public ServitiumCrmUrlService(@Value("${servitium.butterfly.url-prefix}") final String urlPrefix,
@@ -26,6 +28,7 @@ public class ServitiumCrmUrlService {
         this.logon = urlPrefix + LOGON;
         this.rentalReturn = urlPrefix + RENTAL_RETURN;
         this.jobSheet = appPrefix + JOB_SHEET;
+        this.logout = urlPrefix + LOGOFF;
     }
 
     public String getCaptchaImage() {
@@ -42,5 +45,9 @@ public class ServitiumCrmUrlService {
 
     public String getJobSheet() {
         return jobSheet;
+    }
+
+    public String getLogout() {
+        return logout;
     }
 }

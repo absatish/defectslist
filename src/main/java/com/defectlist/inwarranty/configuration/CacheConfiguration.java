@@ -24,7 +24,7 @@ public class CacheConfiguration {
     @Bean
     public CacheManager appCacheManager(final Ticker ticker) {
         final CaffeineCache cacheSessionId = new CaffeineCache(CacheType.SESSION.getCacheName(), Caffeine.newBuilder()
-                .expireAfterWrite(60, TimeUnit.MINUTES)
+                .expireAfterWrite(15, TimeUnit.MINUTES)
                 .maximumSize(1000)
                 .ticker(ticker)
                 .build());

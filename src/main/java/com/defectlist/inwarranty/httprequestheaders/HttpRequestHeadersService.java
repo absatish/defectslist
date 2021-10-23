@@ -32,6 +32,13 @@ public class HttpRequestHeadersService {
         return new HttpEntity<>(login.getCredentialsAndCaptcha(), headers);
     }
 
+    public HttpEntity<String> getHttpEntityForLogout(final LogoutRequest logoutRequest) {
+        final HttpHeaders headers = new HttpHeaders();
+        addCommonHeaders(headers);
+        headers.add(HttpHeaders.REFERER, ORIGIN + "/butterfly/top.jsp");
+        return new HttpEntity<>(logoutRequest.getTopLogin(), headers);
+    }
+
     private void addCommonHeaders(final HttpHeaders headers) {
         headers.add(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
         headers.add(HttpHeaders.HOST, HOST);
