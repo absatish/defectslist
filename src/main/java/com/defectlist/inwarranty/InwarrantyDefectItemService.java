@@ -198,7 +198,6 @@ public class InwarrantyDefectItemService {
                 .map(partition -> CompletableFuture.supplyAsync(
                         () -> partition.stream()
                                 .filter(complaintId -> complaintId.length() == 12)
-                                .limit(1)
                                 .map(complaintId -> getJobSheet(key, complaintId))
                                 .collect(Collectors.toList()), executorService))
                 .collect(Collectors.toList());
