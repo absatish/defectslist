@@ -5,10 +5,7 @@ import com.defectlist.inwarranty.exception.NoDataFoundException;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
 import com.defectlist.inwarranty.utils.RequestParameterResolver;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -40,7 +37,12 @@ public class InwarrantyDefectItemResource {
         return inwarrantyDefectItemService.getPreload();
     }
 
-    @GetMapping(path = "/login")
+    @GetMapping("/login")
+    public String login() {
+        return "<font color=red>Invalid Session. Please first login..!</font><br>" + initialPage();
+    }
+
+    @PostMapping(path = "/login")
     public String login(@RequestParam final Map<String, String> requestParams) {
         try {
             final LoginRequest loginRequest = buildLoginRequest(requestParams);

@@ -43,7 +43,7 @@ public class InwarrantyDefectItemService {
     private static final String KEY_NAME = "captcha.jpg";
 
     private static final int PARTITION_SIZE = 3;
-    private static final int THREAD_POOL_SIZE = 3;
+    private static final int THREAD_POOL_SIZE = 5;
 
     private final ServitiumCrmConnector servitiumCrmConnector;
 
@@ -57,19 +57,23 @@ public class InwarrantyDefectItemService {
 
     private final GridItemFactory gridItemFactory;
 
+    private final boolean enableAsync;
+
     @Autowired
     public InwarrantyDefectItemService(final ServitiumCrmConnector servitiumCrmConnector,
            final S3Service s3Service,
            final CacheService cacheService,
            @Value("${aws.s3.captcha-bucket}") final String bucketName,
            final UIFactory uiFactory,
-           final GridItemFactory gridItemFactory) {
+           final GridItemFactory gridItemFactory,
+           @Value("${servitium.jobsheets.enable-async}") boolean enableAsync) {
         this.servitiumCrmConnector = servitiumCrmConnector;
         this.s3Service = s3Service;
         this.cacheService = cacheService;
         this.bucketName = bucketName;
         this.uiFactory = uiFactory;
         this.gridItemFactory = gridItemFactory;
+        this.enableAsync = enableAsync;
     }
 
     public String login(final LoginRequest loginRequest) {
@@ -114,11 +118,23 @@ public class InwarrantyDefectItemService {
         return uiFactory.getLoginPage(jSessionId, serverId, url);
     }
 
-    public GridItem getJobSheet(final String spareName, final String compalintId) {
-        LOGGER.info("Get jobsheet, complaintId : {}", compalintId);
-        final String response = servitiumCrmConnector.getJobSheet(compalintId);
-        LOGGER.info("Found jobsheet, complaintId : {}", compalintId);
-        return gridItemFactory.buildGridItem(compalintId, spareName, response);
+    public GridItem getJobSheet(final String spareName, final String complaintId) {
+        return getJobSheet(spareName, complaintId, 1);
+    }
+
+    private GridItem getJobSheet(final String spareName, final String complaintId, final int tryCount) {
+        LOGGER.info("Get jobsheet, complaintId : {}, tryCount : {}", complaintId, tryCount);
+        final String response = servitiumCrmConnector.getJobSheet(complaintId);
+        LOGGER.info("Found jobsheet, complaintId : {}, tryCount : {}", complaintId, tryCount);
+        final GridItem gridItem = gridItemFactory.buildGridItem(complaintId, spareName, response);
+        if (!validGridItem(gridItem) && tryCount < 3) {
+            return getJobSheet(spareName, complaintId, tryCount + 1);
+        }
+        return gridItem;
+    }
+
+    private boolean validGridItem(final GridItem gridItem) {
+        return gridItem.getModel() != null && gridItem.getProduct() != null && gridItem.getSerialNumber() != null;
     }
 
     private String getCallIds(final boolean includeOther) {
@@ -155,18 +171,18 @@ public class InwarrantyDefectItemService {
 
     private String getGridItems(final Map<String, String> callIds) {
         final Map<String, List<GridItem>> gridItemsMap = new HashMap<>();
+
         callIds.forEach((key, value) -> {
             final List<String> complaintIds = Arrays.asList(value.split(DELIMITER_COMMA));
-
-            //final List<GridItem> gridItems = getJobSheetsAsync(complaintIds, key);
-
-            final List<GridItem> gridItems = complaintIds.stream()
-                    .filter(complaintId -> complaintId.length() == 12)
-                    .map(complaintId -> getJobSheet(key, complaintId))
-                    .collect(Collectors.toList());
-
+            final List<GridItem> gridItems = enableAsync
+                    ? getJobSheetsAsync(complaintIds, key)
+                    : complaintIds.stream()
+                         .filter(complaintId -> complaintId.length() == 12)
+                         .map(complaintId -> getJobSheet(key, complaintId))
+                         .collect(Collectors.toList());
             gridItemsMap.put(key, gridItems);
         });
+
         final URL verticleImage = s3Service
                 .generatePresignedUrl(bucketName, "cut-vertical.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
         final URL horizontalImage = s3Service
@@ -182,6 +198,7 @@ public class InwarrantyDefectItemService {
                 .map(partition -> CompletableFuture.supplyAsync(
                         () -> partition.stream()
                                 .filter(complaintId -> complaintId.length() == 12)
+                                .limit(1)
                                 .map(complaintId -> getJobSheet(key, complaintId))
                                 .collect(Collectors.toList()), executorService))
                 .collect(Collectors.toList());

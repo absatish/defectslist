@@ -3,6 +3,8 @@ package com.defectlist.inwarranty;
 import com.defectlist.inwarranty.model.GridItem;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Stream;
+
 @Component
 public class GridItemFactory {
 
@@ -11,34 +13,36 @@ public class GridItemFactory {
     public GridItem buildGridItem(final String complainId, final String spareName, final String htmlData) {
         final String[] lines = htmlData.split(DELIMITER_NEW_LINE);
         final String date = "20" + complainId.substring(1, 3) + "-" + complainId.substring(3,5) + "-" + complainId.substring(5, 7);
-        final GridItem gridItem = new GridItem();
-        int lineNumber = 0;
-        for(final String line : lines) {
-            final String modifiedLine = line
-                    .replaceAll("<font size=\"1\">", "")
-                    .replaceAll("\\t", "")
-                    .replaceAll("</font>\\r", "");
-            switch (lineNumber) {
-                case 194:
-                    gridItem.setProduct(modifiedLine);
-                    break;
-                case 208:
-                    gridItem.setModel(modifiedLine);
-                    break;
-                case 222:
-                    gridItem.setSerialNumber(modifiedLine);
-                    break;
-                case 236:
-                    gridItem.setDop(modifiedLine);
-            }
-            lineNumber++;
+        final GridItem.GridItemBuilder gridItemBuilder = GridItem.builder();
+        Stream.iterate(0, lineNumber -> ++lineNumber)
+                .limit(lines.length)
+                .forEach(lineNumber -> buildRequiredInfo(lines[lineNumber], lineNumber, gridItemBuilder));
+        gridItemBuilder.branchName("ELURU");
+        gridItemBuilder.actualFault("Shortage");
+        gridItemBuilder.complaintNumber(complainId);
+        gridItemBuilder.techName("VIKRAM SIVA KUMAR");
+        gridItemBuilder.date(date);
+        gridItemBuilder.spareName(spareName);
+        return gridItemBuilder.build();
+    }
+
+    private void buildRequiredInfo(final String line, final int lineNumber, final GridItem.GridItemBuilder gridItemBuilder) {
+        final String modifiedLine = line
+                .replaceAll("<font size=\"1\">", "")
+                .replaceAll("\\t", "")
+                .replaceAll("</font>\\r", "");
+        switch (lineNumber) {
+            case 194:
+                gridItemBuilder.product(modifiedLine);
+                break;
+            case 208:
+                gridItemBuilder.model(modifiedLine);
+                break;
+            case 222:
+                gridItemBuilder.serialNumber(modifiedLine);
+                break;
+            case 236:
+                gridItemBuilder.dop(modifiedLine);
         }
-        gridItem.setBranchName("ELURU");
-        gridItem.setActualFault("Shortage");
-        gridItem.setComplaintNumber(complainId);
-        gridItem.setTechName("VIKRAM SIVA KUMAR");
-        gridItem.setDate(date);
-        gridItem.setSpareName(spareName);
-        return gridItem;
     }
 }

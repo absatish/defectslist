@@ -2,29 +2,25 @@ package com.defectlist.inwarranty.model;
 
 public class GridItem {
 
-    private String branchName;
+    private final String branchName;
 
-    private String complaintNumber;
+    private final String complaintNumber;
 
-    private String date;
+    private final String date;
 
-    private String product;
+    private final String product;
 
-    private String model;
+    private final String model;
 
-    private String serialNumber;
+    private final String serialNumber;
 
-    private String dop;
+    private final String dop;
 
-    private String spareName;
+    private final String spareName;
 
-    private String actualFault;
+    private final String actualFault;
 
-    private String techName;
-
-    public String getBranchName() {
-        return this.branchName;
-    }
+    private final String techName;
 
     public String getComplaintNumber() {
         return this.complaintNumber;
@@ -58,47 +54,102 @@ public class GridItem {
         return this.spareName;
     }
 
-    public void setSpareName(final String spareName) {
-        this.spareName = spareName;
-    }
-
-    public void setBranchName(final String branchName) {
-        this.branchName = branchName;
-    }
-
-    public void setComplaintNumber(final String complaintNumber) {
-        this.complaintNumber = complaintNumber;
-    }
-
-    public void setDate(final String date) {
-        this.date = date;
-    }
-
-    public void setModel(final String model) {
-        this.model = model;
-    }
-
-    public void setSerialNumber(final String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
-
-    public void setDop(final String dop) {
-        this.dop = dop;
-    }
-
-    public void setActualFault(final String actualFault) {
-        this.actualFault = actualFault;
-    }
-
-    public void setTechName(final String techName) {
-        this.techName = techName;
-    }
-
-    public void setProduct(String product) {
-        this.product = product;
-    }
-
     public String getProduct() {
         return this.product;
+    }
+
+    public static class GridItemBuilder {
+
+        private String branchName;
+
+        private String complaintNumber;
+
+        private String date;
+
+        private String product;
+
+        private String model;
+
+        private String serialNumber;
+
+        private String dop;
+
+        private String spareName;
+
+        private String actualFault;
+
+        private String techName;
+
+        public GridItemBuilder branchName(final String branchName) {
+            this.branchName = branchName;
+            return this;
+        }
+
+        public GridItemBuilder complaintNumber(final String complaintNumber) {
+            this.complaintNumber = complaintNumber;
+            return this;
+        }
+
+        public GridItemBuilder date(final String date) {
+            this.date = date;
+            return this;
+        }
+
+        public GridItemBuilder product(final String product) {
+            this.product = product;
+            return this;
+        }
+
+        public GridItemBuilder model(final String model) {
+            this.model = model;
+            return this;
+        }
+
+        public GridItemBuilder serialNumber(final String serialNumber) {
+            this.serialNumber = serialNumber;
+            return this;
+        }
+
+        public GridItemBuilder dop(final String dop) {
+            this.dop = dop;
+            return this;
+        }
+
+        public GridItemBuilder spareName(final String spareName) {
+            this.spareName = spareName;
+            return this;
+        }
+
+        public GridItemBuilder actualFault(final String actualFault) {
+            this.actualFault = actualFault;
+            return this;
+        }
+
+        public GridItemBuilder techName(final String techName) {
+            this.techName = techName;
+            return this;
+        }
+
+        public GridItem build() {
+            return new GridItem(this);
+        }
+
+    }
+
+    private GridItem(final GridItemBuilder gridItemBuilder) {
+        this.branchName = gridItemBuilder.serialNumber;
+        this.complaintNumber = gridItemBuilder.complaintNumber;
+        this.date = gridItemBuilder.date;
+        this.product = gridItemBuilder.product;
+        this.model = gridItemBuilder.model;
+        this.serialNumber = gridItemBuilder.serialNumber;
+        this.dop = gridItemBuilder.dop;
+        this.spareName = gridItemBuilder.spareName;
+        this.actualFault = gridItemBuilder.actualFault;
+        this.techName = gridItemBuilder.techName;
+    }
+
+    public static GridItemBuilder builder() {
+        return new GridItem.GridItemBuilder();
     }
 }

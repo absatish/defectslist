@@ -77,22 +77,37 @@ public class UIFactory {
                 ".slider.round:before {\n" +
                 "  border-radius: 50%;\n" +
                 "}</style>" +
+                "<script type=text/javascript>" +
+                "function validate() {" +
+                "if (document.getElementById('username').value==''){" +
+                "alert('Please enter username');" +
+                "document.getElementById('username').focus();" +
+                "} else if (document.getElementById('password').value==''){" +
+                "alert('Please enter password');" +
+                "document.getElementById('password').focus();" +
+                "} else if (document.getElementById('captcha').value==''){" +
+                "alert('Please enter captcha');" +
+                "document.getElementById('captcha').focus();" +
+                "} else {" +
+                "document.getElementById('billGenerator').submit();" +
+                "}}" +
+                "</script>" +
                 "\t</head>\n" +
                 "\t<body>\n" +
                 "<center><b><h4>Generate Defectives List</h4></b></center><hr>" +
                 "\t\t\t\t<div class=\"form-group\">" +
-                "<form name='billGenerator' method='GET' action='/app/v1/defects/login'>" +
+                "<form name='billGenerator' id='billGenerator' method='POST' action='/app/v1/defects/login'>" +
                 "<center>" +
                 "<div class=\"container\" style=\"width:500px; align:center;\">\n" +
                 "\t\t\t\t<div class=\"form-group\">\n" +
                 "\t\t\t\t  <label class=\"control-label col-sm-4\" style=\"margin-top:0.5%;\" for=\"Username\">Username</label>\n" +
                 "\t\t\t\t  <div class=\"col-sm-6\">  " +
-                " <input class=form-control placeholder=username type=text name=username></div>" +
+                " <input class=form-control placeholder=username type=text id=username name=username></div>" +
                 "<div class=\"col-sm-2\" style=\"margin-left:0px;\" id=error-username></div>" +
                 "\t\t\t\t<div class=\"form-group\">\n" +
                 "\t\t\t\t  <label class=\"control-label col-sm-4\" style=\"margin-top:0.5%;\" for=\"Password\">Password</label>\n" +
                 "\t\t\t\t  <div class=\"col-sm-6\">  " +
-                "<input class=form-control placeholder=password type=password name=password></div>" +
+                "<input class=form-control placeholder=password type=password id=password name=password></div>" +
                 "<div class=\"col-sm-2\" style=\"margin-left:0px;\" id=error-password></div>" +
                 "\t\t\t\t<div class=\"form-group\">\n" +
                 "\t\t\t\t  <label class=\"control-label col-sm-4\" style=\"margin-top:0.5%;\" for=\"callId\"><img id=captcha2 src=" + captchaUrl + "> </label>\n" +
@@ -100,8 +115,8 @@ public class UIFactory {
                 "<input class=form-control type=text name=captcha placeholder=captcha id=captcha></div>" +
                 "<div class=\"col-sm-2\" style=\"margin-left:0px;\" id=error-captcha></div>" +
 
-                "<input type=hidden name=id value=" + jSessionId + ">" +
-                "<input type=hidden name=server value=" + serverId + ">" +
+                "<input type=hidden name=id id=sessionId value=" + jSessionId + ">" +
+                "<input type=hidden name=server id=serverId value=" + serverId + ">" +
 
                 "\t\t\t\t<hr><div class=\"form-group\">\n" +
                 "<div class=\"col-sm-4\">Include&nbsp;all&nbsp;complaints</div>" +
@@ -112,7 +127,7 @@ public class UIFactory {
                 "\t\t\t\t<hr><div class=\"form-group\">\n" +
                 "\t\t\t\t  <div class=\"col-sm-12\">  " +
                 "<input class='btn btn-default' style='align:right;' name='Login' " +
-                "value='Login' type=submit onclick=javascript:login()></div></div>" +
+                "value='Login' type=button onclick=javascript:validate()></div></div>" +
                 "</table></center>" +
                 "</form>\n" +
                 "</body>\n" +
@@ -157,6 +172,7 @@ public class UIFactory {
             colCount++;
         }
         webResponse = webResponse.concat("</tr></table>");
+        webResponse = webResponse.concat("<button class=button onclick=\"window.print()\">Print this page</button>");
 
         return webResponse;
     }
@@ -177,7 +193,7 @@ public class UIFactory {
                 "</style><style>" +
                 "@media print {\n" +
                 "  footer {page-break-after: always;}\n" +
-                "}</style></head>\n<table><tr>";
+                "}</style></head>\n <button class=button onclick=\"window.print()\">Print this page</button>\n<table><tr>";
     }
 
     private int getSortOrder(final GridItem item1, final GridItem item2) {
