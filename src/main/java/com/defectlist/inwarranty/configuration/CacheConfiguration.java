@@ -28,6 +28,11 @@ public class CacheConfiguration {
                 .maximumSize(1000)
                 .ticker(ticker)
                 .build());
+        final CaffeineCache cacheGridItems = new CaffeineCache(CacheType.GRID_ITEM.getCacheName(), Caffeine.newBuilder()
+                .expireAfterWrite(1440, TimeUnit.MINUTES)
+                .maximumSize(1000)
+                .ticker(ticker)
+                .build());
 
         final SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Collections.singleton(cacheSessionId));

@@ -45,6 +45,10 @@ public class InwarrantyDefectItemService {
     private static final int PARTITION_SIZE = 3;
     private static final int THREAD_POOL_SIZE = 5;
 
+    private static final int MAX_TRY_COUNT = 4;
+
+    private static final String LINE_REGEX = "<input type='hidden' size='50' name = 'Call_Id";
+
     private final ServitiumCrmConnector servitiumCrmConnector;
 
     private final S3Service s3Service;
@@ -119,7 +123,8 @@ public class InwarrantyDefectItemService {
     }
 
     public GridItem getJobSheet(final String spareName, final String complaintId) {
-        return getJobSheet(spareName, complaintId, 1);
+        final Optional<GridItem> gridItemFromCache = cacheService.get(CacheType.GRID_ITEM.getCacheName(), complaintId, GridItem.class);
+        return gridItemFromCache.orElse(getJobSheet(spareName, complaintId, 1));
     }
 
     private GridItem getJobSheet(final String spareName, final String complaintId, final int tryCount) {
@@ -127,8 +132,11 @@ public class InwarrantyDefectItemService {
         final String response = servitiumCrmConnector.getJobSheet(complaintId);
         LOGGER.info("Found jobsheet, complaintId : {}, tryCount : {}", complaintId, tryCount);
         final GridItem gridItem = gridItemFactory.buildGridItem(complaintId, spareName, response);
-        if (!validGridItem(gridItem) && tryCount < 3) {
+        if (!validGridItem(gridItem) && tryCount < MAX_TRY_COUNT) {
             return getJobSheet(spareName, complaintId, tryCount + 1);
+        }
+        if (validGridItem(gridItem)) {
+            cacheService.put(CacheType.GRID_ITEM.getCacheName(), complaintId, gridItem);
         }
         return gridItem;
     }
@@ -139,7 +147,6 @@ public class InwarrantyDefectItemService {
 
     private String getCallIds(final boolean includeOther) {
         final String responseBody = getContent();
-        final String lineRegex = "<input type='hidden' size='50' name = 'Call_Id";
         final String[] data = responseBody.split("\n");
         final Map<String, String> callIds = new HashMap<>();
         DefectivePartType.getAvailablePartTypes(includeOther)
@@ -148,8 +155,8 @@ public class InwarrantyDefectItemService {
         String tempCallId = "";
         boolean started = false;
         for(String line : data) {
-            if (line.contains(lineRegex)) {
-                final String billLine = line.split(lineRegex)[0];
+            if (line.contains(LINE_REGEX)) {
+                final String billLine = line.split(LINE_REGEX)[0];
                 tempCallId = billLine.substring(billLine.length() - 12);
                 started = true;
                 localLineCount = 0;

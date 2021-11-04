@@ -54,7 +54,7 @@ public class InwarrantyDefectItemResource {
             return "<hr><center><font color=green size=5px>" + noDataFoundException.getMessage()
                     + "</font></center></hr><br>";
         } catch(final Exception exception) {
-            return UNKNOWN_ERROR + exception.getMessage();
+            return UNKNOWN_ERROR + exception.getMessage() + "<br><center><a href=/app/v1/defects>Go back</a></center>";
         }
     }
 
