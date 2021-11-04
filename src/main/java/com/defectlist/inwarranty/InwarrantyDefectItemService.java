@@ -123,8 +123,9 @@ public class InwarrantyDefectItemService {
     }
 
     public GridItem getJobSheet(final String spareName, final String complaintId) {
-        final Optional<GridItem> gridItemFromCache = cacheService.get(CacheType.GRID_ITEM.getCacheName(), complaintId, GridItem.class);
-        return gridItemFromCache.orElse(getJobSheet(spareName, complaintId, 1));
+        final Optional<GridItem> gridItemFromCache = cacheService.get(CacheType.GRID_ITEM.getCacheName(),
+                spareName + "-" + complaintId, GridItem.class);
+        return gridItemFromCache.orElseGet(() -> getJobSheet(spareName, complaintId, 1));
     }
 
     private GridItem getJobSheet(final String spareName, final String complaintId, final int tryCount) {
@@ -136,7 +137,7 @@ public class InwarrantyDefectItemService {
             return getJobSheet(spareName, complaintId, tryCount + 1);
         }
         if (validGridItem(gridItem)) {
-            cacheService.put(CacheType.GRID_ITEM.getCacheName(), complaintId, gridItem);
+            cacheService.put(CacheType.GRID_ITEM.getCacheName(), spareName + "-" + complaintId, gridItem);
         }
         return gridItem;
     }

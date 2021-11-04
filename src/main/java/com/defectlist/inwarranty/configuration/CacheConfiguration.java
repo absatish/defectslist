@@ -9,6 +9,7 @@ import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +36,7 @@ public class CacheConfiguration {
                 .build());
 
         final SimpleCacheManager cacheManager = new SimpleCacheManager();
-        cacheManager.setCaches(Collections.singleton(cacheSessionId));
+        cacheManager.setCaches(Arrays.asList(cacheSessionId, cacheGridItems));
         return cacheManager;
     }
 }
