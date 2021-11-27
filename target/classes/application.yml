@@ -4,7 +4,7 @@ servitium:
   app:
     url-prefix: https://app.servitiumcrm.com/butterfly/
   jobsheets:
-    enable-async: true
+    enable-async: false
 
 aws:
   s3:
