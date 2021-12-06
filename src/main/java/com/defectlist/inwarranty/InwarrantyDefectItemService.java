@@ -82,7 +82,9 @@ public class InwarrantyDefectItemService {
 
     public String login(final LoginRequest loginRequest) {
         if (HttpStatus.OK.equals(servitiumCrmConnector.login(loginRequest))) {
-            final String content = getCallIds(loginRequest.includeOthers());
+            final String loggedInUserName = WelcomeListFactory
+                    .getLoggedInUserName(servitiumCrmConnector.getWelcomeList(loginRequest));
+            final String content = getCallIds(loginRequest.includeOthers(), loggedInUserName);
             servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
             return content;
         } else {
@@ -122,19 +124,20 @@ public class InwarrantyDefectItemService {
         return uiFactory.getLoginPage(jSessionId, serverId, url);
     }
 
-    public GridItem getJobSheet(final String spareName, final String complaintId) {
+    public GridItem getJobSheet(final String spareName, final String complaintId, final String loggedInUserName) {
         final Optional<GridItem> gridItemFromCache = cacheService.get(CacheType.GRID_ITEM.getCacheName(),
                 spareName + "-" + complaintId, GridItem.class);
-        return gridItemFromCache.orElseGet(() -> getJobSheet(spareName, complaintId, 1));
+        return gridItemFromCache.orElseGet(() -> getJobSheet(spareName, complaintId, 1, loggedInUserName));
     }
 
-    private GridItem getJobSheet(final String spareName, final String complaintId, final int tryCount) {
+    private GridItem getJobSheet(final String spareName, final String complaintId, final int tryCount,
+                                 final String loggedInUserName) {
         LOGGER.info("Get jobsheet, complaintId : {}, tryCount : {}", complaintId, tryCount);
         final String response = servitiumCrmConnector.getJobSheet(complaintId);
         LOGGER.info("Found jobsheet, complaintId : {}, tryCount : {}", complaintId, tryCount);
-        final GridItem gridItem = gridItemFactory.buildGridItem(complaintId, spareName, response);
+        final GridItem gridItem = gridItemFactory.buildGridItem(complaintId, spareName, response, loggedInUserName);
         if (!validGridItem(gridItem) && tryCount < MAX_TRY_COUNT) {
-            return getJobSheet(spareName, complaintId, tryCount + 1);
+            return getJobSheet(spareName, complaintId, tryCount + 1, loggedInUserName);
         }
         if (validGridItem(gridItem)) {
             cacheService.put(CacheType.GRID_ITEM.getCacheName(), spareName + "-" + complaintId, gridItem);
@@ -146,7 +149,7 @@ public class InwarrantyDefectItemService {
         return gridItem.getModel() != null && gridItem.getProduct() != null && gridItem.getSerialNumber() != null;
     }
 
-    private String getCallIds(final boolean includeOther) {
+    private String getCallIds(final boolean includeOther, final String loggedInUserName) {
         final String responseBody = getContent();
         final String[] data = responseBody.split("\n");
         final Map<String, String> callIds = new HashMap<>();
@@ -174,19 +177,19 @@ public class InwarrantyDefectItemService {
             }
             localLineCount++;
         }
-        return getGridItems(callIds);
+        return getGridItems(callIds, loggedInUserName);
     }
 
-    private String getGridItems(final Map<String, String> callIds) {
+    private String getGridItems(final Map<String, String> callIds, final String loggedInUserName) {
         final Map<String, List<GridItem>> gridItemsMap = new HashMap<>();
 
         callIds.forEach((key, value) -> {
             final List<String> complaintIds = Arrays.asList(value.split(DELIMITER_COMMA));
             final List<GridItem> gridItems = enableAsync
-                    ? getJobSheetsAsync(complaintIds, key)
+                    ? getJobSheetsAsync(complaintIds, key, loggedInUserName)
                     : complaintIds.stream()
                          .filter(complaintId -> complaintId.length() == 12)
-                         .map(complaintId -> getJobSheet(key, complaintId))
+                         .map(complaintId -> getJobSheet(key, complaintId, loggedInUserName))
                          .collect(Collectors.toList());
             gridItemsMap.put(key, gridItems);
         });
@@ -198,7 +201,7 @@ public class InwarrantyDefectItemService {
         return uiFactory.buildGridPage(gridItemsMap, verticleImage, horizontalImage);
     }
 
-    private List<GridItem> getJobSheetsAsync(final List<String> complaintIds, final String key) {
+    private List<GridItem> getJobSheetsAsync(final List<String> complaintIds, final String key, final String loggedInUserName) {
         final List<List<String>> complaintIdPartitions = ListUtils.partition(complaintIds, Math.min(complaintIds.size(), PARTITION_SIZE));
         final ExecutorService executorService = Executors.newFixedThreadPool(Math.min(complaintIdPartitions.size(), THREAD_POOL_SIZE));
 
@@ -206,7 +209,7 @@ public class InwarrantyDefectItemService {
                 .map(partition -> CompletableFuture.supplyAsync(
                         () -> partition.stream()
                                 .filter(complaintId -> complaintId.length() == 12)
-                                .map(complaintId -> getJobSheet(key, complaintId))
+                                .map(complaintId -> getJobSheet(key, complaintId, loggedInUserName))
                                 .collect(Collectors.toList()), executorService))
                 .collect(Collectors.toList());
 

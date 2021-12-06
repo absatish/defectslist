@@ -17,6 +17,8 @@ public interface ServitiumCrmConnector {
 
     HttpStatus login(final LoginRequest loginRequest);
 
+    String getWelcomeList(final LoginRequest loginRequest);
+
     CaptchaResponse getHttpHeaders();
 
     String getJobSheet(final String complaintId);

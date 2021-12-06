@@ -10,7 +10,8 @@ public class GridItemFactory {
 
     private static final String DELIMITER_NEW_LINE = "\n";
 
-    public GridItem buildGridItem(final String complainId, final String spareName, final String htmlData) {
+    public GridItem buildGridItem(final String complainId, final String spareName, final String htmlData,
+                                  final String loggedInUserName) {
         final String[] lines = htmlData.split(DELIMITER_NEW_LINE);
         final String date = "20" + complainId.substring(1, 3) + "-" + complainId.substring(3,5) + "-" + complainId.substring(5, 7);
         final GridItem.GridItemBuilder gridItemBuilder = GridItem.builder();
@@ -20,7 +21,7 @@ public class GridItemFactory {
         gridItemBuilder.branchName("ELURU");
         gridItemBuilder.actualFault("Shortage");
         gridItemBuilder.complaintNumber(complainId);
-        gridItemBuilder.techName("VIKRAM SIVA KUMAR");
+        gridItemBuilder.techName(loggedInUserName);
         gridItemBuilder.date(date);
         gridItemBuilder.spareName(spareName);
         return gridItemBuilder.build();

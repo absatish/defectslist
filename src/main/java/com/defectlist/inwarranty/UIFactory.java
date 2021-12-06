@@ -142,7 +142,8 @@ public class UIFactory {
                 .flatMap(entry -> entry.getValue().stream())
                 .sorted(this::getSortOrder)
                 .collect(Collectors.toList());
-        String webResponse = getGridItemHeader();
+        String webResponse = getGridItemHeader(gridItems.size());
+        int totalCount = 0;
         for(final GridItem gridItem : gridItems) {
             if (colCount > 0 && colCount < 3) {
                 webResponse = webResponse.concat("<td><img src=" + verticalImage + " height=260px></td>");
@@ -160,7 +161,7 @@ public class UIFactory {
 
             webResponse = webResponse.concat("<td><table class='roundedCorners'  style='font-size:12px;'>" +
                     "<tr><td colspan=2><center>IN WARRANTY DEFECTIVE PARTS</center></td></tr>")
-                    .concat("<tr><td style='width:80px;'>Branch Name</td><td>ELURU</td></tr>\n" +
+                    .concat("<tr><td style='width:80px;'>Branch Name</td><td id='bn" + totalCount + "'></td></tr>\n" +
                             "<tr><td>Complaint No</td><td>" + gridItem.getComplaintNumber() + "</td></tr>")
                     .concat("<tr><td>Date</td><td>" + gridItem.getDate() + "</td></tr>")
                     .concat("<tr><td>Product</td><td>" + gridItem.getProduct() + "</td></tr>")
@@ -169,9 +170,10 @@ public class UIFactory {
                     .concat("<tr><td>DOP</td><td>" + gridItem.getDop() + "</td></tr>")
                     .concat("<tr><td>Spare Name</td><td>" + gridItem.getSpareName() + "</td></tr>")
                     .concat("<tr><td>Actual Fault</td><td>" + gridItem.getActualFault() + "</td></tr>")
-                    .concat("<tr><td>Tech Name</td><td>" + gridItem.getTechName() + "</td></tr>")
+                    .concat("<tr><td>Tech Name</td><td id='tn" + totalCount + "'>" + gridItem.getTechName() + "</td></tr>")
                     .concat("</table></td>");
             colCount++;
+            totalCount++;
         }
         webResponse = webResponse.concat("</tr></table>");
         webResponse = webResponse.concat("<button class=button onclick=\"window.print()\">Print this page</button>");
@@ -179,7 +181,7 @@ public class UIFactory {
         return webResponse;
     }
 
-    private String getGridItemHeader() {
+    private String getGridItemHeader(final int size) {
         return "<html><title>Print</title><head>" +
                 "<style type=text/css>td{font-size:12px;}\n.innertable{height:300px;width:300px;}</style>" +
                 "<style> table { width:300px; height:250px; }" +
@@ -195,7 +197,23 @@ public class UIFactory {
                 "</style><style>" +
                 "@media print {\n" +
                 "  footer {page-break-after: always;}\n" +
-                "}</style></head>\n <button class=button onclick=\"window.print()\">Print this page</button>\n<table><tr>";
+                "}</style>" +
+                "<script>" +
+                "function writeBranchName() {" +
+                "for(var i=0;i<" + size + ";i++){" +
+                "document.getElementById('bn'+i).innerHTML = document.getElementById('bn').value;" +
+                "}" +
+                "}" +
+                "function writeTechnicianName() {" +
+                "for(var i=0;i<" + size + ";i++){" +
+                "document.getElementById('tn'+i).innerHTML = document.getElementById('tn').value;" +
+                "}" +
+                "}" +
+                "</script>" +
+                "</head>\n <button class=button onclick=\"window.print()\">Print this page</button>\n" +
+                "Branch Name&nbsp;:&nbsp;<input name=branchName placeholder=branchName id=bn onchange='javascript:writeBranchName();'/>" +
+                "&nbsp;&nbsp;Technician Name&nbsp;:&nbsp;<input name=technicianName placeholder=technicianName id=tn onchange='javascript:writeTechnicianName();'/>" +
+                "<table><tr>";
     }
 
     private int getSortOrder(final GridItem item1, final GridItem item2) {

@@ -81,6 +81,21 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
     }
 
     @Override
+    public String getWelcomeList(final LoginRequest loginRequest) {
+        final ResponseEntity<String> exchange = restOperations.exchange(
+                servitiumCrmUrlService.getWelcomeList(),
+                HttpMethod.POST,
+                httpRequestHeadersService.getHttpEntityForLogin(loginRequest),
+                new ParameterizedTypeReference<String>() {
+                });
+        if (Objects.requireNonNull(exchange.getBody()).contains("User Name")) {
+            return exchange.getBody();
+        }
+        LOGGER.info("Get welcomelist request failed. Content : {}", exchange.getBody());
+        return null;
+    }
+
+    @Override
     public CaptchaResponse getHttpHeaders() {
         final ResponseEntity<byte []> exchange = restOperations.exchange(
                 servitiumCrmUrlService.getCaptchaImage(),
