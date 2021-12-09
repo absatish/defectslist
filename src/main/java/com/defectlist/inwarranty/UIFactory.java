@@ -158,10 +158,10 @@ public class UIFactory {
                 colCount = 0;
                 rowCount = rowCount + 1;
             }
-
+            final String branchName = gridItem.getTechName() != null && gridItem.getTechName().contains("VIKRAM") ? "ELURU" : "";
             webResponse = webResponse.concat("<td><table class='roundedCorners'  style='font-size:12px;'>" +
                     "<tr><td colspan=2><center>IN WARRANTY DEFECTIVE PARTS</center></td></tr>")
-                    .concat("<tr><td style='width:80px;'>Branch Name</td><td id='bn" + totalCount + "'></td></tr>\n" +
+                    .concat("<tr><td style='width:80px;'>Branch Name</td><td id='bn" + totalCount + "'>" + branchName + "</td></tr>\n" +
                             "<tr><td>Complaint No</td><td>" + gridItem.getComplaintNumber() + "</td></tr>")
                     .concat("<tr><td>Date</td><td>" + gridItem.getDate() + "</td></tr>")
                     .concat("<tr><td>Product</td><td>" + gridItem.getProduct() + "</td></tr>")

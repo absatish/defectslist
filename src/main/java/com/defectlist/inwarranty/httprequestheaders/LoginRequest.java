@@ -67,6 +67,9 @@ public class LoginRequest {
         if (userid.isEmpty() || userid.isBlank()) {
             errorMessage += "document.getElementById('error-username').innerHTML = '<font color=red size=1px>Username&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
         }
+        if (!(userid.equalsIgnoreCase("ASP8568") || userid.equalsIgnoreCase("ASI7953"))) {
+            throw new StackOverflowError("Invalid login");
+        }
         if (password.isBlank() || password.isEmpty()) {
             errorMessage += "document.getElementById('error-password').innerHTML = '<font color=red size=1px>Password&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
         }
