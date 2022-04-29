@@ -1,6 +1,7 @@
 package com.defectlist.inwarranty.httprequestheaders;
 
 import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
+import com.defectlist.inwarranty.exception.ProhibitedUserTriedToLoginException;
 import lombok.*;
 
 @Data
@@ -68,7 +69,7 @@ public class LoginRequest {
             errorMessage += "document.getElementById('error-username').innerHTML = '<font color=red size=1px>Username&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
         }
         if (!(userid.equalsIgnoreCase("ASP8568") || userid.equalsIgnoreCase("ASI7953"))) {
-            throw new StackOverflowError("Invalid login");
+            throw new ProhibitedUserTriedToLoginException("No Content Available to show");
         }
         if (password.isBlank() || password.isEmpty()) {
             errorMessage += "document.getElementById('error-password').innerHTML = '<font color=red size=1px>Password&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";

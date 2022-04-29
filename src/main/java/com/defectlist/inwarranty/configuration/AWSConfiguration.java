@@ -1,8 +1,11 @@
 package com.defectlist.inwarranty.configuration;
 
 import com.amazonaws.auth.*;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,8 +29,17 @@ public class AWSConfiguration {
     public AmazonS3 amazonS3Client(final AWSStaticCredentialsProvider amazonAWSCredentials) {
         return AmazonS3Client.builder()
                 .withCredentials(amazonAWSCredentials)
-                .withRegion("ap-south-1")
+                .withRegion(Regions.AP_SOUTH_1)
                 .build();
+    }
+
+    @Bean
+    @Autowired
+    public AmazonSimpleEmailService amazonSimpleEmailService(final AWSStaticCredentialsProvider amazonAWSCredentials) {
+                return AmazonSimpleEmailServiceClientBuilder.standard()
+                        .withCredentials(amazonAWSCredentials)
+                        .withRegion(Regions.AP_SOUTH_1)
+                        .build();
     }
 
     private String resolveKey(final String key) {

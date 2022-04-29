@@ -1,18 +1,27 @@
 package com.defectlist.inwarranty;
 
+import com.defectlist.inwarranty.email.EmailService;
 import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
 import com.defectlist.inwarranty.exception.NoDataFoundException;
+import com.defectlist.inwarranty.exception.ProhibitedUserTriedToLoginException;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
 import com.defectlist.inwarranty.utils.RequestParameterResolver;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 
 @RestController
 @RequestMapping("/app/v1/defects")
 public class InwarrantyDefectItemResource {
+
+    private static final Logger LOGGER = getLogger(InwarrantyDefectItemResource.class);
 
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
@@ -26,10 +35,13 @@ public class InwarrantyDefectItemResource {
             "<br>";
 
     private final InwarrantyDefectItemService inwarrantyDefectItemService;
+    private final EmailService emailService;
 
     @Autowired
-    public InwarrantyDefectItemResource(final InwarrantyDefectItemService inwarrantyDefectItemService) {
+    public InwarrantyDefectItemResource(final InwarrantyDefectItemService inwarrantyDefectItemService,
+                                        final EmailService emailService) {
         this.inwarrantyDefectItemService = inwarrantyDefectItemService;
+        this.emailService = emailService;
     }
 
     @GetMapping
@@ -39,7 +51,7 @@ public class InwarrantyDefectItemResource {
 
     @GetMapping("/login")
     public String login() {
-        return "<font color=red>Invalid Session. Please first login..!</font><br>" + initialPage();
+        return "<center><font color=red>Invalid Session. Please first login..!</font></center><br>" + initialPage();
     }
 
     @PostMapping(path = "/login")
@@ -53,7 +65,15 @@ public class InwarrantyDefectItemResource {
         } catch (final NoDataFoundException noDataFoundException) {
             return "<hr><center><font color=green size=5px>" + noDataFoundException.getMessage()
                     + "</font></center></hr><br>";
-        } catch(final Exception exception) {
+        } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
+            emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
+            return prohibitedUserTriedToLoginException.getMessage();
+        } catch (final Exception exception) {
+            final String message = Arrays.stream(exception.getStackTrace())
+                    .limit(20)
+                    .map(StackTraceElement::toString)
+                    .collect(Collectors.joining("<br>"));
+            emailService.sendEmail("Login failed", message);
             return UNKNOWN_ERROR + exception.getMessage() + "<br><center><a href=/app/v1/defects>Go back</a></center>";
         }
     }

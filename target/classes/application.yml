@@ -9,6 +9,8 @@ servitium:
 aws:
   s3:
     captcha-bucket: captcha-bucket
+  ses:
+    enabled: true
 
 variables:
   button: MMXDDYMMZ771775776FFY336225WWXAAYCCZDDYJJYEEP226AAZIIYKKQAAL
