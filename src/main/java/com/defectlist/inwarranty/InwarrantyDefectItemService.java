@@ -3,6 +3,7 @@ package com.defectlist.inwarranty;
 import com.amazonaws.HttpMethod;
 import com.defectlist.inwarranty.configuration.CacheType;
 import com.defectlist.inwarranty.connector.ServitiumCrmConnector;
+import com.defectlist.inwarranty.email.EmailService;
 import com.defectlist.inwarranty.httprequestheaders.ContentRequest;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
 import com.defectlist.inwarranty.httprequestheaders.LogoutRequest;
@@ -63,6 +64,8 @@ public class InwarrantyDefectItemService {
 
     private final boolean enableAsync;
 
+    private final EmailService emailService;
+
     @Autowired
     public InwarrantyDefectItemService(final ServitiumCrmConnector servitiumCrmConnector,
            final S3Service s3Service,
@@ -70,7 +73,8 @@ public class InwarrantyDefectItemService {
            @Value("${aws.s3.captcha-bucket}") final String bucketName,
            final UIFactory uiFactory,
            final GridItemFactory gridItemFactory,
-           @Value("${servitium.jobsheets.enable-async}") boolean enableAsync) {
+           @Value("${servitium.jobsheets.enable-async}") boolean enableAsync,
+           final EmailService emailService) {
         this.servitiumCrmConnector = servitiumCrmConnector;
         this.s3Service = s3Service;
         this.cacheService = cacheService;
@@ -78,6 +82,7 @@ public class InwarrantyDefectItemService {
         this.uiFactory = uiFactory;
         this.gridItemFactory = gridItemFactory;
         this.enableAsync = enableAsync;
+        this.emailService = emailService;
     }
 
     public String login(final LoginRequest loginRequest) {
@@ -85,6 +90,8 @@ public class InwarrantyDefectItemService {
             final String loggedInUserName = WelcomeListFactory
                     .getLoggedInUserName(servitiumCrmConnector.getWelcomeList(loginRequest));
             final String content = getCallIds(loginRequest.includeOthers(), loggedInUserName);
+            emailService.sendEmail("Login Success - " + loggedInUserName, "<p>id : " + loginRequest.getUserId()
+                    + "User logged in successfully</p>");
             servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
             return content;
         } else {
