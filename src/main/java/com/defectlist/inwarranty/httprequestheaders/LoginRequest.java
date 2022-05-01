@@ -9,7 +9,8 @@ import lombok.*;
 public class LoginRequest {
 
     public LoginRequest(final String mobile, final String userid, final String password, final String j_captcha_response,
-                        final String jSessionId, final String server, final boolean printOthers) {
+                        final String jSessionId, final String server, final boolean printOthers,
+                        final boolean showOnlyNumbers) {
         this.mobile = mobile;
         this.userid = userid;
         this.password = password;
@@ -17,6 +18,8 @@ public class LoginRequest {
         this.jSessionId = jSessionId;
         this.server =server;
         this.printOthers = printOthers;
+        this.showOnlyNumbers = showOnlyNumbers;
+
     }
 
     private final String mobile;
@@ -33,8 +36,14 @@ public class LoginRequest {
 
     private final boolean printOthers;
 
+    private final boolean showOnlyNumbers;
+
     public String getUserId() {
         return userid;
+    }
+
+    public boolean isShowOnlyNumbers() {
+        return this.showOnlyNumbers;
     }
 
     public String getCredentialsAndCaptcha() {

@@ -14,6 +14,7 @@ import com.defectlist.inwarranty.utils.ListUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -89,9 +90,23 @@ public class InwarrantyDefectItemService {
         if (HttpStatus.OK.equals(servitiumCrmConnector.login(loginRequest))) {
             final String loggedInUserName = WelcomeListFactory
                     .getLoggedInUserName(servitiumCrmConnector.getWelcomeList(loginRequest));
-            final String content = getCallIds(loginRequest.includeOthers(), loggedInUserName);
+            final String content = getCallIds(loginRequest, loggedInUserName);
             emailService.sendEmail("Login Success - " + loggedInUserName, "<p>id : " + loginRequest.getUserId()
                     + "User logged in successfully</p>");
+            servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
+            return content;
+        } else {
+            return "<font color=red>Something went wrong. please try to <a href='/app/v1/defects'>login</a> again..!</font><br><hr>" + getPreload();
+        }
+    }
+
+    public String loginAndLoadBillNumbers(final LoginRequest loginRequest) {
+        if (HttpStatus.OK.equals(servitiumCrmConnector.login(loginRequest))) {
+            final String loggedInUserName = WelcomeListFactory
+                    .getLoggedInUserName(servitiumCrmConnector.getWelcomeList(loginRequest));
+            final String content = getOnlyCallIds(loginRequest, loggedInUserName);
+            emailService.sendEmail("Login Success - " + loggedInUserName, "<p>id : " + loginRequest.getUserId()
+                    + " : User logged in successfully</p><hr><p>Page : PageNumbers</p>---------- End of Mail -------");
             servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
             return content;
         } else {
@@ -156,8 +171,24 @@ public class InwarrantyDefectItemService {
         return gridItem.getModel() != null && gridItem.getProduct() != null && gridItem.getSerialNumber() != null;
     }
 
-    private String getCallIds(final boolean includeOther, final String loggedInUserName) {
-        final String responseBody = getContent();
+    private String getOnlyCallIds(final LoginRequest loginRequest, final String loggedInUserName) {
+        final Map<String, String> callIds = loadCallIds(loginRequest);
+        final Map<String, List<GridItem>> gridItemsMap = buildGridItems(callIds, loggedInUserName);
+        final URL verticleImage = s3Service
+                .generatePresignedUrl(bucketName, "cut-vertical.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
+        final URL horizontalImage = s3Service
+                .generatePresignedUrl(bucketName, "cut.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
+        return uiFactory.buildGridPageWithBillNumbers(gridItemsMap, verticleImage, horizontalImage);
+    }
+
+    private String getCallIds(final LoginRequest loginRequest, final String loggedInUserName) {
+        final Map<String, String> callIds = loadCallIds(loginRequest);
+        return getGridItems(callIds, loggedInUserName);
+    }
+
+    private Map<String, String> loadCallIds(final LoginRequest loginRequest) {
+        final boolean includeOther = loginRequest.includeOthers();
+        final String responseBody = getContent(loginRequest);
         final String[] data = responseBody.split("\n");
         final Map<String, String> callIds = new HashMap<>();
         DefectivePartType.getAvailablePartTypes(includeOther)
@@ -184,10 +215,19 @@ public class InwarrantyDefectItemService {
             }
             localLineCount++;
         }
-        return getGridItems(callIds, loggedInUserName);
+        return callIds;
     }
 
     private String getGridItems(final Map<String, String> callIds, final String loggedInUserName) {
+        final Map<String, List<GridItem>> gridItemsMap = buildGridItems(callIds, loggedInUserName);
+        final URL verticleImage = s3Service
+                .generatePresignedUrl(bucketName, "cut-vertical.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
+        final URL horizontalImage = s3Service
+                .generatePresignedUrl(bucketName, "cut.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
+        return uiFactory.buildGridPage(gridItemsMap, verticleImage, horizontalImage);
+    }
+
+    private Map<String, List<GridItem>> buildGridItems(final Map<String, String> callIds, final String loggedInUserName) {
         final Map<String, List<GridItem>> gridItemsMap = new HashMap<>();
 
         callIds.forEach((key, value) -> {
@@ -195,17 +235,13 @@ public class InwarrantyDefectItemService {
             final List<GridItem> gridItems = enableAsync
                     ? getJobSheetsAsync(complaintIds, key, loggedInUserName)
                     : complaintIds.stream()
-                         .filter(complaintId -> complaintId.length() == 12)
-                         .map(complaintId -> getJobSheet(key, complaintId, loggedInUserName))
-                         .collect(Collectors.toList());
+                    .filter(complaintId -> complaintId.length() == 12)
+                    .map(complaintId -> getJobSheet(key, complaintId, loggedInUserName))
+                    .collect(Collectors.toList());
             gridItemsMap.put(key, gridItems);
         });
 
-        final URL verticleImage = s3Service
-                .generatePresignedUrl(bucketName, "cut-vertical.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
-        final URL horizontalImage = s3Service
-                .generatePresignedUrl(bucketName, "cut.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
-        return uiFactory.buildGridPage(gridItemsMap, verticleImage, horizontalImage);
+        return gridItemsMap;
     }
 
     private List<GridItem> getJobSheetsAsync(final List<String> complaintIds, final String key, final String loggedInUserName) {
@@ -240,9 +276,9 @@ public class InwarrantyDefectItemService {
                 .orElse(DefectivePartType.OTHER);
     }
 
-    private String getContent() {
-        final Optional<String> jSessionIdFromCache = cacheService.get(CacheType.SESSION.getCacheName(), JSESSION_ID, String.class);
-        final Optional<String> serverIdFromCache = cacheService.get(CacheType.SESSION.getCacheName(), SERVER_ID, String.class);
-        return servitiumCrmConnector.readContentFromServitiumCrm(new ContentRequest(jSessionIdFromCache.get(), serverIdFromCache.get()));
+    private String getContent(final LoginRequest loginRequest) {
+        final String jSessionId = loginRequest.getJSessionId();
+        final String serverId = loginRequest.getServer();
+        return servitiumCrmConnector.readContentFromServitiumCrm(new ContentRequest(jSessionId, serverId));
     }
 }

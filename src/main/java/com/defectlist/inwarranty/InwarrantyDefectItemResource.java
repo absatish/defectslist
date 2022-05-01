@@ -30,6 +30,7 @@ public class InwarrantyDefectItemResource {
     private static final String SERVER_NAME = "server";
     private static final String INCLUDE_OTHER = "includeOther";
     private static final String ON = "on";
+    private static final String SHOW_ONLY_NUMBERS = "showOnlyNumbers";
 
     private static final String UNKNOWN_ERROR = "<font color=red>Unknown error occurred. Please try again in few seconds.</font>" +
             "<br>";
@@ -58,10 +59,13 @@ public class InwarrantyDefectItemResource {
     public String login(@RequestParam final Map<String, String> requestParams) {
         try {
             final LoginRequest loginRequest = buildLoginRequest(requestParams);
-            loginRequest.validate();
+            validateLoginRequest(loginRequest);
+            if (loginRequest.isShowOnlyNumbers()) {
+                return inwarrantyDefectItemService.loginAndLoadBillNumbers(loginRequest);
+            }
             return inwarrantyDefectItemService.login(loginRequest);
         } catch (final InvalidLoginRequestException invalidLoginRequestException) {
-            return initialPage() + invalidLoginRequestException.getMessage();
+            return getInvalidLoginRequestResponse(invalidLoginRequestException);
         } catch (final NoDataFoundException noDataFoundException) {
             return "<hr><center><font color=green size=5px>" + noDataFoundException.getMessage()
                     + "</font></center></hr><br>";
@@ -69,13 +73,12 @@ public class InwarrantyDefectItemResource {
             emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
             return prohibitedUserTriedToLoginException.getMessage();
         } catch (final Exception exception) {
-            final String message = Arrays.stream(exception.getStackTrace())
-                    .limit(20)
-                    .map(StackTraceElement::toString)
-                    .collect(Collectors.joining("<br>"));
-            emailService.sendEmail("Login failed", message);
-            return UNKNOWN_ERROR + exception.getMessage() + "<br><center><a href=/app/v1/defects>Go back</a></center>";
+            return getUnknownExceptionResponse(exception);
         }
+    }
+
+    private void validateLoginRequest(final LoginRequest loginRequest) throws InvalidLoginRequestException {
+        loginRequest.validate();
     }
 
     private LoginRequest buildLoginRequest(final Map<String, String> requestParams) {
@@ -85,7 +88,21 @@ public class InwarrantyDefectItemResource {
                 RequestParameterResolver.getValue(requestParams, CAPTCHA),
                 RequestParameterResolver.getValue(requestParams, J_SESSION_ID),
                 RequestParameterResolver.getValue(requestParams, SERVER_NAME),
-                RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER).equalsIgnoreCase(ON));
+                RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER).equalsIgnoreCase(ON),
+                RequestParameterResolver.getValue(requestParams, SHOW_ONLY_NUMBERS).equalsIgnoreCase(ON));
+    }
+
+    private String getInvalidLoginRequestResponse(final InvalidLoginRequestException invalidLoginRequestException) {
+        return initialPage() + invalidLoginRequestException.getMessage();
+    }
+
+    private String getUnknownExceptionResponse(final Exception exception) {
+        final String message = Arrays.stream(exception.getStackTrace())
+                .limit(20)
+                .map(StackTraceElement::toString)
+                .collect(Collectors.joining("<br>"));
+        emailService.sendEmail("Login failed", message);
+        return UNKNOWN_ERROR + exception.getMessage() + "<br><center><a href=/app/v1/defects>Go back</a></center>";
     }
 
 }
