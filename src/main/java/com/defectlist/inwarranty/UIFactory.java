@@ -4,9 +4,11 @@ import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Component
@@ -119,9 +121,15 @@ public class UIFactory {
                 "<input type=hidden name=server id=serverId value=" + serverId + ">" +
 
                 "\t\t\t\t<hr><div class=\"form-group\">\n" +
-                "<div class=\"col-sm-4\">Include&nbsp;all&nbsp;complaints</div>" +
+                "<div class=\"col-sm-4\">Include&nbsp;all&nbsp;complaints&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>" +
                 "<label class=\"switch col-sm-6\">\n" +
                 "  <input name=includeOther type=\"checkbox\">\n" +
+                "  <span class=\"slider round\"></span>\n" +
+                "</label><div class=\"form-group\"></div>" +
+                "\t\t\t\t<hr><div class=\"form-group\">\n" +
+                "<div class=\"col-sm-8\">&nbsp;&nbsp;Show&nbsp;only&nbsp;complaint&nbsp;numbers&nbsp;<font size=1px color=red> [ప్రతీ కంప్లైంట్  నెంబర్  మీద క్లిక్ చేసి డీటెయిల్స్ చూడవచ్చు]</font> </div>" +
+                "<label class=\"switch col-sm-4\">\n" +
+                "  <input name=showOnlyNumbers type=\"checkbox\">\n" +
                 "  <span class=\"slider round\"></span>\n" +
                 "</label>" +
                 "\t\t\t\t<hr><div class=\"form-group\">\n" +
@@ -181,6 +189,67 @@ public class UIFactory {
         return webResponse;
     }
 
+    public String buildGridPageWithBillNumbers(final Map<String, List<GridItem>> gridItemsJson,
+                                final URL verticalImage, final URL horizontalImage) {
+        int colCount = 0;
+        int rowCount = 0;
+        final List<GridItem> gridItems = gridItemsJson.entrySet().stream()
+                .flatMap(entry -> entry.getValue().stream())
+                .sorted(this::getSortOrder)
+                .collect(Collectors.toList());
+        String webResponse = getGridItemHeader(gridItems.size());
+        int totalCount = 0;
+
+        for(final GridItem gridItem : gridItems) {
+            if (colCount > 0 && colCount < 3) {
+            }
+            if (colCount == 3) {
+                if (rowCount != 3) {
+                    webResponse = webResponse.concat("</tr><tr>");
+                } else {
+                    webResponse = webResponse.concat("</tr></table><footer><br></footer><hr><br><table><tr>");
+                    rowCount = -1;
+                }
+                colCount = 0;
+                rowCount = rowCount + 1;
+            }
+            final String id = gridItem.getComplaintNumber()+gridItem.getProduct().replaceAll(" ", "");
+            Random random = new Random();
+            random.nextInt(256*256*256);
+            webResponse = webResponse.concat("<td style='cursor:pointer;color:" + String.format("#%06x", random.nextInt(256*256*256)) + ";' id='" + id + "'" +
+                    " onclick=\"javascript:loadDetails('" + id + "');\">" + gridItem.getComplaintNumber() +
+                    "&nbsp;-&nbsp;" + gridItem.getProduct() + "</td>");
+            colCount++;
+            totalCount++;
+        }
+
+
+        webResponse = webResponse.concat("</tr></table>");
+        webResponse = webResponse.concat("<button class=button onclick=\"window.print()\">Print this page</button>");
+
+        totalCount =0;
+        for(final GridItem gridItem : gridItems) {
+            final String id = gridItem.getComplaintNumber()+gridItem.getProduct().replaceAll(" ", "");
+            final String branchName = gridItem.getTechName() != null && gridItem.getTechName().contains("VIKRAM") ? "ELURU" : "";
+
+            webResponse = webResponse.concat("<p hidden onclick=\"javascript:close('" + gridItem.getComplaintNumber() +
+                    "', '" + gridItem.getProduct() + "', '"+ id + "');\" id='hidden-" + id + "'><table class='roundedCorners'  style='font-size:12px;'>" +
+                    "<tr><td colspan=2><center>IN WARRANTY DEFECTIVE PARTS</center></td></tr>" +
+                    "<tr><td style='width:80px;'>Branch Name</td><td id='bn" + totalCount + "'>" + branchName + "</td></tr>" +
+                    "<tr><td>Complaint No</td><td>" + gridItem.getComplaintNumber() + "</td></tr>" +
+                    "<tr><td>Date</td><td>" + gridItem.getDate() + "</td></tr>" +
+                    "<tr><td>Product</td><td>" + gridItem.getProduct() + "</td></tr>" +
+                    "<tr><td>Model Name</td><td>" + gridItem.getModel() + "</td></tr>" +
+                    "<tr><td>Serial Number</td><td>" + gridItem.getSerialNumber() + "</td></tr>" +
+                    "<tr><td>DOP</td><td>" + gridItem.getDop() + "</td></tr>" +
+                    "<tr><td>Spare Name</td><td>" + gridItem.getSpareName() + "</td></tr>" +
+                    "<tr><td>Actual Fault</td><td>" + gridItem.getActualFault() + "</td></tr>" +
+                    "<tr><td>Tech Name</td><td id='tn" + totalCount + "'>" + gridItem.getTechName() + "</td></tr></table></p>");
+            totalCount++;
+        }
+        return webResponse;
+    }
+
     private String getGridItemHeader(final int size) {
         return "<html><title>Print</title><head>" +
                 "<style type=text/css>td{font-size:12px;}\n.innertable{height:300px;width:300px;}</style>" +
@@ -208,6 +277,15 @@ public class UIFactory {
                 "for(var i=0;i<" + size + ";i++){" +
                 "document.getElementById('tn'+i).innerHTML = document.getElementById('tn').value;" +
                 "}" +
+                "}" +
+                "function loadDetails(id) {" +
+                "document.getElementById(id).innerHTML = document.getElementById('hidden-'+id).innerHTML;" +
+                "}" +
+                "function close(id, type, id2) {" +
+                "document.getElementById(id).innerHTML = id2 + ' - ' + type;" +
+                "}" +
+                "function getcolor() {" +
+                "Math.floor(Math.random()*16777215).toString(16);" +
                 "}" +
                 "</script>" +
                 "</head>\n <button class=button onclick=\"window.print()\">Print this page</button>\n" +
