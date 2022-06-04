@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
 import java.util.*;
@@ -96,7 +97,7 @@ public class InwarrantyDefectItemService {
             servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
             return content;
         } else {
-            return "<font color=red>Something went wrong. please try to <a href='/app/v1/defects'>login</a> again..!</font><br><hr>" + getPreload();
+            return "<font color=red>Something went wrong. please try to <a href='/app/v1/defects'>login</a> again..!</font><br><hr>" + getPreload(loginRequest.getVersion());
         }
     }
 
@@ -110,11 +111,12 @@ public class InwarrantyDefectItemService {
             servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
             return content;
         } else {
-            return "<font color=red>Something went wrong. please try to <a href='/app/v1/defects'>login</a> again..!</font><br><hr>" + getPreload();
+            return "<font color=red>Something went wrong. please try to <a href='/app/v1/defects'>login</a> again..!</font><br><hr>" + getPreload(loginRequest.getVersion());
         }
     }
 
-    public String getPreload() {
+    public String getPreload(final Version version) {
+
 
         String jSessionId;
         String serverId;
@@ -143,7 +145,10 @@ public class InwarrantyDefectItemService {
             return "<font color=red>Something went wrong..! Please try again after few minutes..!</font><br>";
         }
         final URL url = s3Service.generatePresignedUrl(bucketName, KEY_NAME, Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
-        return uiFactory.getLoginPage(jSessionId, serverId, url);
+        if (Version.VERSION_1.equals(version)) {
+            return uiFactory.getLoginPage(jSessionId, serverId, url);
+        }
+        return uiFactory.getLoginPageV2(jSessionId, serverId, url);
     }
 
     public GridItem getJobSheet(final String spareName, final String complaintId, final String loggedInUserName) {

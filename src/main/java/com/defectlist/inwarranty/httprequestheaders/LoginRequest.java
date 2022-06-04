@@ -1,5 +1,6 @@
 package com.defectlist.inwarranty.httprequestheaders;
 
+import com.defectlist.inwarranty.Version;
 import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
 import com.defectlist.inwarranty.exception.ProhibitedUserTriedToLoginException;
 import lombok.*;
@@ -10,7 +11,7 @@ public class LoginRequest {
 
     public LoginRequest(final String mobile, final String userid, final String password, final String j_captcha_response,
                         final String jSessionId, final String server, final boolean printOthers,
-                        final boolean showOnlyNumbers) {
+                        final boolean showOnlyNumbers, final Version version) {
         this.mobile = mobile;
         this.userid = userid;
         this.password = password;
@@ -19,7 +20,7 @@ public class LoginRequest {
         this.server =server;
         this.printOthers = printOthers;
         this.showOnlyNumbers = showOnlyNumbers;
-
+        this.version = version;
     }
 
     private final String mobile;
@@ -37,6 +38,8 @@ public class LoginRequest {
     private final boolean printOthers;
 
     private final boolean showOnlyNumbers;
+
+    private final Version version;
 
     public String getUserId() {
         return userid;
@@ -68,6 +71,10 @@ public class LoginRequest {
 
     public boolean includeOthers() {
         return printOthers;
+    }
+
+    public Version getVersion() {
+        return version;
     }
 
     public void validate() throws InvalidLoginRequestException {
