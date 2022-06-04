@@ -35,6 +35,9 @@ public class InwarrantyDefectItemResource {
     private static final String UNKNOWN_ERROR = "<font color=red>Unknown error occurred. Please try again in few seconds.</font>" +
             "<br>";
 
+    private static final String DEPRICATION_TEXT = "<br><Br><center><font color=red size=5px>This page has been upgraded to version-2. Please click on the following link to get redirected<br><hr>ఈ పేజీ  నవీనీకరించబడింది.  దయచేసి ఈ క్రింది వెర్షన్ - 2 లింక్ క్లిక్ చేయగలరు" +
+            "<br><hr><a href=/app/v2/defects/>Version-2 Link</a></font></center>";
+
     private final InwarrantyDefectItemService inwarrantyDefectItemService;
     private final EmailService emailService;
 
@@ -47,7 +50,8 @@ public class InwarrantyDefectItemResource {
 
     @GetMapping
     public String initialPage() {
-        return inwarrantyDefectItemService.getPreload();
+        return DEPRICATION_TEXT;
+        //return inwarrantyDefectItemService.getPreload(Version.VERSION_1);
     }
 
     @GetMapping("/login")
@@ -89,7 +93,8 @@ public class InwarrantyDefectItemResource {
                 RequestParameterResolver.getValue(requestParams, J_SESSION_ID),
                 RequestParameterResolver.getValue(requestParams, SERVER_NAME),
                 RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER).equalsIgnoreCase(ON),
-                RequestParameterResolver.getValue(requestParams, SHOW_ONLY_NUMBERS).equalsIgnoreCase(ON));
+                RequestParameterResolver.getValue(requestParams, SHOW_ONLY_NUMBERS).equalsIgnoreCase(ON),
+                Version.VERSION_1);
     }
 
     private String getInvalidLoginRequestResponse(final InvalidLoginRequestException invalidLoginRequestException) {
