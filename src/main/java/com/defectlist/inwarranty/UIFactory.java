@@ -4,7 +4,6 @@ import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -139,6 +138,270 @@ public class UIFactory {
                 "</table></center>" +
                 "</form>\n" +
                 "</body>\n" +
+                "</html>";
+    }
+
+    public String getLoginPageV2(final String jSessionId, final String serverId, final URL captchaUrl) {
+        return "<html>" +
+                "<head>" +
+                "<style>" +
+                "@import url('https://fonts.googleapis.com/css?family=Raleway:400,700');\n" +
+                "\n" +
+                "* {\n" +
+                "\tbox-sizing: border-box;\n" +
+                "\tmargin: 0;\n" +
+                "\tpadding: 0;\t\n" +
+                "\tfont-family: Raleway, sans-serif;\n" +
+                "}\n" +
+                "\n" +
+                "body {\n" +
+                "\tbackground: linear-gradient(90deg, #C7C5F4, #776BCC);\t\t\n" +
+                "}\n" +
+                "\n" +
+                ".container {\n" +
+                "\tdisplay: flex;\n" +
+                "\talign-items: center;\n" +
+                "\tjustify-content: center;\n" +
+                "\tmin-height: 100vh;\n" +
+                "}\n" +
+                "\n" +
+                ".screen {\t\t\n" +
+                "\tbackground: linear-gradient(90deg, #5D54A4, #7C78B8);\t\t\n" +
+                "\tposition: relative;\t\n" +
+                "\theight: 500px;\n" +
+                "\twidth: 360px;\t\n" +
+                "\tbox-shadow: 0px 0px 24px #5C5696;\n" +
+                "}\n" +
+                "\n" +
+                ".screen__content {\n" +
+                "\tz-index: 1;\n" +
+                "\tposition: relative;\t\n" +
+                "}\n" +
+                "\n" +
+                ".screen__background {\t\t\n" +
+                "\tposition: absolute;\n" +
+                "\ttop: 0;\n" +
+                "\tleft: 0;\n" +
+                "\tright: 0;\n" +
+                "\tbottom: 0;\n" +
+                "\tz-index: 0;\n" +
+                "\t-webkit-clip-path: inset(0 0 0 0);\n" +
+                "\tclip-path: inset(0 0 0 0);\t\n" +
+                "}\n" +
+                "\n" +
+                ".screen__background__shape {\n" +
+                "\ttransform: rotate(45deg);\n" +
+                "\tposition: absolute;\n" +
+                "}\n" +
+                "\n" +
+                ".screen__background__shape1 {\n" +
+                "\theight: 520px;\n" +
+                "\twidth: 520px;\n" +
+                "\tbackground: #FFF;\t\n" +
+                "\ttop: -50px;\n" +
+                "\tright: 120px;\t\n" +
+                "\tborder-radius: 0 72px 0 0;\n" +
+                "}\n" +
+                "\n" +
+                ".screen__background__shape2 {\n" +
+                "\theight: 220px;\n" +
+                "\twidth: 220px;\n" +
+                "\tbackground: #6C63AC;\t\n" +
+                "\ttop: -172px;\n" +
+                "\tright: 0;\t\n" +
+                "\tborder-radius: 32px;\n" +
+                "}\n" +
+                "\n" +
+                ".screen__background__shape3 {\n" +
+                "\theight: 540px;\n" +
+                "\twidth: 190px;\n" +
+                "\tbackground: linear-gradient(270deg, #5D54A4, #6A679E);\n" +
+                "\ttop: -24px;\n" +
+                "\tright: 0;\t\n" +
+                "\tborder-radius: 32px;\n" +
+                "}\n" +
+                "\n" +
+                ".screen__background__shape4 {\n" +
+                "\theight: 400px;\n" +
+                "\twidth: 200px;\n" +
+                "\tbackground: #7E7BB9;\t\n" +
+                "\ttop: 420px;\n" +
+                "\tright: 50px;\t\n" +
+                "\tborder-radius: 60px;\n" +
+                "}\n" +
+                "\n" +
+                ".login {\n" +
+                "\twidth: 320px;\n" +
+                "\tpadding: 30px;\n" +
+                "\tpadding-top: 10%;\n" +
+                "}\n" +
+                "\n" +
+                ".login__field {\n" +
+                "\tpadding: 5px 0px;\t\n" +
+                "\tposition: relative;\t\n" +
+                "}\n" +
+                "\n" +
+                ".login__icon {\n" +
+                "\tposition: absolute;\n" +
+                "\ttop: 0px;\n" +
+                "\tcolor: #7875B5;\n" +
+                "}\n" +
+                "\n" +
+                ".login__input {\n" +
+                "\tborder: none;\n" +
+                "\tborder-bottom: 2px solid #D1D1D4;\n" +
+                "\tbackground: none;\n" +
+                "\tpadding: 10px;\n" +
+                "\tpadding-left: 24px;\n" +
+                "\tfont-weight: 700;\n" +
+                "\twidth: 75%;\n" +
+                "\ttransition: .2s;\n" +
+                "}\n" +
+                "\n" +
+                ".login__input:active,\n" +
+                ".login__input:focus,\n" +
+                ".login__input:hover {\n" +
+                "\toutline: none;\n" +
+                "\tborder-bottom-color: #6A679E;\n" +
+                "}\n" +
+                "\n" +
+                ".login__submit {\n" +
+                "\tbackground: #fff;\n" +
+                "\tfont-size: 14px;\n" +
+                "\tmargin-left: 45%;" +
+                "\tmargin-top: 30px;\n" +
+                "\tpadding: 16px 20px;\n" +
+                "\tborder-radius: 26px;\n" +
+                "\tborder: 1px solid #D4D3E8;\n" +
+                "\ttext-transform: uppercase;\n" +
+                "\tfont-weight: 700;\n" +
+                "\tdisplay: flex;\n" +
+                "\talign-items: center;\n" +
+                "\twidth: 34%;\n" +
+                "\tcolor: #4C489D;\n" +
+                "\tbox-shadow: 0px 2px 2px #5C5696;\n" +
+                "\tcursor: pointer;\n" +
+                "\ttransition: .2s;\n" +
+                "}\n" +
+                "\n" +
+                ".login__submit:active,\n" +
+                ".login__submit:focus,\n" +
+                ".login__submit:hover {\n" +
+                "\tborder-color: #6A679E;\n" +
+                "\toutline: none;\n" +
+                "}\n" +
+                ".login__title {\n" +
+                "\tbackground: #fff;\n" +
+                "\tfont-size: 14px;\n" +
+                "\tmargin-top: 0px;\n" +
+                "\tpadding: 16px 20px;\n" +
+                "\tborder: 1px solid #D4D3E8;\n" +
+                "\ttext-transform: uppercase;\n" +
+                "\tdisplay: flex;\n" +
+                "\talign-items: center;\n" +
+                "\tcolor: #4C489D;\n" +
+                "\tcursor: pointer;\n" +
+                "\ttransition: .2s;\n" +
+                "}\n" +
+                "\n" +
+                ".button__icon {\n" +
+                "\tfont-size: 24px;\n" +
+                "\tmargin-left: auto;\n" +
+                "\tcolor: #7875B5;\n" +
+                "}\n" +
+                "\n" +
+                ".social-login {\t\n" +
+                "\tposition: absolute;\n" +
+                "\theight: 140px;\n" +
+                "\twidth: 160px;\n" +
+                "\ttext-align: center;\n" +
+                "\tbottom: 0px;\n" +
+                "\tright: 0px;\n" +
+                "\tcolor: #fff;\n" +
+                "}\n" +
+                "\n" +
+                ".social-icons {\n" +
+                "\tdisplay: flex;\n" +
+                "\talign-items: center;\n" +
+                "\tjustify-content: center;\n" +
+                "}\n" +
+                "\n" +
+                ".social-login__icon {\n" +
+                "\tpadding: 20px 10px;\n" +
+                "\tcolor: #fff;\n" +
+                "\ttext-decoration: none;\t\n" +
+                "\ttext-shadow: 0px 0px 8px #7875B5;\n" +
+                "}\n" +
+                "\n" +
+                ".social-login__icon:hover {\n" +
+                "\ttransform: scale(1.5);\t\n" +
+                "}" +
+                "</style>" +
+                "<script type=text/javascript>" +
+                "function validate() {" +
+                "if (document.getElementById('username').value==''){" +
+                "alert('Please enter username');" +
+                "document.getElementById('username').focus();" +
+                "} else if (document.getElementById('password').value==''){" +
+                "alert('Please enter password');" +
+                "document.getElementById('password').focus();" +
+                "} else if (document.getElementById('captcha').value==''){" +
+                "alert('Please enter captcha');" +
+                "document.getElementById('captcha').focus();" +
+                "} else {" +
+                "document.getElementById('billGenerator').submit();" +
+                "}}" +
+                "</script>" +
+                "</head>" +
+                "<body>" +
+                "<div class=\"container\">\n" +
+
+                "\t<div class=\"screen\">\n" +
+
+                "\t\t<div class=\"screen__content\">\n" +
+                "<h3 class=login__title><center>Generate Defective List</center></h3>" +
+
+                "\t\t\t<form class=\"login\" name='billGenerator' id='billGenerator' method='POST' action='/app/v2/defects/login'>\n" +
+                "\t\t\t\t<div class=\"login__field\">\n" +
+                "\t\t\t\t\t<i class=\"login__icon fas fa-user\">Username</i>\n" +
+                "\t\t\t\t\t<input type=\"text\" id=\"username\" name=\"username\" class=\"login__input\">\n" +
+                "\t\t\t\t</div>\n" +
+                "\t\t\t\t<div class=\"login__field\">\n" +
+                "\t\t\t\t\t<i class=\"login__icon fas fa-lock\">Password</i>\n" +
+                "\t\t\t\t\t<input type=\"password\" id=\"password\" name=\"password\" class=\"login__input\">\n" +
+                "\t\t\t\t</div>\n" +
+                "\t\t\t\t<div class=\"login__field\">\n" +
+                "\t\t\t\t\t<i class=\"login__icon fas fa-lock\">Captcha</i>\n" +
+                "\t\t\t\t\t<input type=\"captcha\" id=\"captcha\" name=\"captcha\" class=\"login__input\" placeholder=\"\">\n" +
+                "\t\t\t\t</div>\n" +
+                "\t\t\t\t<div class=\"login__field\">\n" +
+                "\t\t\t\t\t<img src=\"" + captchaUrl + "\">" +
+                "\t\t\t\t</div>\n" +
+                getStyles() +
+                "\t\t\t\t<div class=\"login__field\">\n" +
+                "\t\t\t\t\t<i class=\"fa-user\"></i>\n" +
+                getSlider("includeOther") + "&nbsp;Include Others<br>" +
+                "\t\t\t\t\t</div>" +
+                "\t\t\t\t<div class=\"login__field\">\n" +
+                "\t\t\t\t\t<i class=\"fa-user\"></i>\n" +
+                getSlider("showOnlyNumbers") + "View Complaint Numbers<br>" +
+                "\t\t\t\t\t</div>" +
+                "<input type=hidden name=id id=sessionId value=" + jSessionId + ">" +
+                "<input type=hidden name=server id=serverId value=" + serverId + ">" +
+                "\t\t\t\t<button class=\"button login__submit\" name='Login' value='Login' type=button onclick=javascript:validate()>\n" +
+                "\t\t\t\t\t<span class=\"button\">LogIn</span>\n" +
+                "\t\t\t\t</button>\t\t\t\t\n" +
+                "\t\t\t</form>\n" +
+                "\t\t</div>\n" +
+                "\t\t<div class=\"screen__background\">\n" +
+                "\t\t\t<span class=\"screen__background__shape screen__background__shape4\"></span>\n" +
+                "\t\t\t<span class=\"screen__background__shape screen__background__shape3\"></span>\t\t\n" +
+                "\t\t\t<span class=\"screen__background__shape screen__background__shape2\"></span>\n" +
+                "\t\t\t<span class=\"screen__background__shape screen__background__shape1\"></span>\n" +
+                "\t\t</div>\t\t\n" +
+                "\t</div>\n" +
+                "</div>" +
+                "</body>" +
                 "</html>";
     }
 
@@ -297,5 +560,78 @@ public class UIFactory {
     private int getSortOrder(final GridItem item1, final GridItem item2) {
         return DefectivePartType.getPartTypeByName(item1.getSpareName()).getSortOrder()
                 - DefectivePartType.getPartTypeByName(item2.getSpareName()).getSortOrder();
+    }
+
+    private String getSlider(final String name) {
+        return  "</head>\n" +
+                "<body>\n" +
+                "<label class=\"switch\">\n" +
+                "  <input type=\"checkbox\" name=\"" + name +"\">\n" +
+                "  <span class=\"slider round\"></span>\n" +
+                "</label>\n";
+    }
+
+    private String getStyles() {
+        return "<style>\n" +
+                ".switch {\n" +
+                "  position: relative;\n" +
+                "  display: inline-block;\n" +
+                "  width: 50px;\n" +
+                "  height: 22px;\n" +
+                "}\n" +
+                "\n" +
+                ".switch input { \n" +
+                "  opacity: 0;\n" +
+                "  width: 0;\n" +
+                "  height: 0;\n" +
+                "}\n" +
+                "\n" +
+                ".slider {\n" +
+                "  position: absolute;\n" +
+                "  cursor: pointer;\n" +
+                "  top: 0;\n" +
+                "  left: 0;\n" +
+                "  right: 0;\n" +
+                "  bottom: 0;\n" +
+                "  background-color: #ccc;\n" +
+                "  -webkit-transition: .4s;\n" +
+                "  transition: .4s;\n" +
+                "}\n" +
+                "\n" +
+                ".slider:before {\n" +
+                "  position: absolute;\n" +
+                "  content: \"\";\n" +
+                "  height: 20px;\n" +
+                "  width: 20px;\n" +
+                "  left: 4px;\n" +
+                "  bottom: 1px;\n" +
+                "  background-color: white;\n" +
+                "  -webkit-transition: .4s;\n" +
+                "  transition: .4s;\n" +
+                "}\n" +
+                "\n" +
+                "input:checked + .slider {\n" +
+                "  background-color: #2196F3;\n" +
+                "}\n" +
+                "\n" +
+                "input:focus + .slider {\n" +
+                "  box-shadow: 0 0 1px #2196F3;\n" +
+                "}\n" +
+                "\n" +
+                "input:checked + .slider:before {\n" +
+                "  -webkit-transform: translateX(26px);\n" +
+                "  -ms-transform: translateX(26px);\n" +
+                "  transform: translateX(26px);\n" +
+                "}\n" +
+                "\n" +
+                "/* Rounded sliders */\n" +
+                ".slider.round {\n" +
+                "  border-radius: 50px;\n" +
+                "}\n" +
+                "\n" +
+                ".slider.round:before {\n" +
+                "  border-radius: 50%;\n" +
+                "}\n" +
+                "</style>\n";
     }
 }
