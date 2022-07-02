@@ -338,7 +338,7 @@ public class UIFactory {
                 "        <form name=\"billGenerator\" id=\"billGenerator\" method=\"POST\" action=\"/app/v2/defects/login\">\n" +
                 "            <div class=\"container\">\n" +
                 "                <label class=\"label\"><b> <i class=\"fa fa-user\"></i> Username</i> </b></label><br>\n" +
-                "                <input class=\"box\" id=\"username\" type=\"text\" placeholder=\"Enter Username\"><br>\n" +
+                "                <input class=\"box\" id=\"username\" name=\"username\" type=\"text\" placeholder=\"Enter Username\"><br>\n" +
                 "                <label class=\"label\"><b><i class=\"fa fa-key\"></i> Password</b></label><br>\n" +
                 "                <input class=\"box\" type=\"password\" placeholder=\"Enter Password\" id=\"password\" name=\"password\"><br>\n" +
                 "                <label class=\"label\"><i class=\"fa fa-reddit-alien\"></i> <b>Captcha</b></label><br>\n" +
