@@ -142,6 +142,65 @@ public class UIFactory {
     }
 
     public String getLoginPageV2(final String jSessionId, final String serverId, final URL captchaUrl) {
+        return "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <script src=\"https://kit.fontawesome.com/2a4e6a3153.js\" crossorigin=\"anonymous\"></script>\n" +
+                "    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\">\n" +
+                "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" +
+                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                "    <link rel=\"stylesheet\" href=\"styel.css\">\n" +
+                "    <title>login</title>\n" +
+                "    <script type=text/javascript>\n" +
+                "        function validate() {\n" +
+                "            if (document.getElementById('username').value=='') {\n" +
+                "                alert('Please enter username');\n" +
+                "                document.getElementById('username').focus();\n" +
+                "            } else if (document.getElementById('password').value=='') {\n" +
+                "                alert('Please enter password');\n" +
+                "                document.getElementById('password').focus();\n" +
+                "            } else if (document.getElementById('captcha').value=='') {\n" +
+                "                alert('Please enter captcha');document.getElementById('captcha').focus();\n" +
+                "            } else {\n" +
+                "                document.getElementById('billGenerator').submit();\n" +
+                "            }\n" +
+                "        }\n" +
+                "    \n" +
+                "    </script>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "<div class=\"card\">\n" +
+                "    <div>\n" +
+                "        <h3 class=\"h1\">GENERATE DEFECTIVE LIST</h3>\n" +
+                "        <p class=\"line\"></p>\n" +
+                "        <form name=\"billGenerator\" id=\"billGenerator\" method=\"POST\" action=\"/app/v2/defects/login\">\n" +
+                "            <div class=\"container\">\n" +
+                "                <label class=\"label\"><b> <i class=\"fa fa-user\"></i> Username</i> </b></label><br>\n" +
+                "                <input class=\"box\" id=\"username\" type=\"text\" placeholder=\"Enter Username\"><br>\n" +
+                "                <label class=\"label\"><b><i class=\"fa fa-key\"></i> Password</b></label><br>\n" +
+                "                <input class=\"box\" type=\"password\" placeholder=\"Enter Password\" id=\"password\" name=\"password\"><br>\n" +
+                "                <label class=\"label\"><i class=\"fa fa-reddit-alien\"></i> <b>Captcha</b></label><br>\n" +
+                "                <input class=\"box\" id=\"captcha\" type=\"captcha\" id=\"captcha\" placeholder=\"Enter Captcha From Below\" name=\"captcha\"><br><br>\n" +
+                "                <img src=\"" + captchaUrl + "\">\n" +
+                "                <br>\n" +
+                "                <input class='check' type=\"checkbox\" name=\"includeOther\"> INCLUDE OTHERS <br>\n" +
+                "                <input class='check' type=\"checkbox\" name=\"showOnlyNumbers\"> VIEW COMPLAINT NUMBERS<br>\n" +
+                "                <input type=\"hidden\" name=\"server\" id=\"serverId\" value=\"" + serverId + "\">\n" +
+                "                <input type=\"hidden\" name=\"id\" id=\"sessionId\" value=\"" + jSessionId + "\">\n" +
+                "                <button class='submit' type=button onclick=javascript:validate()>Login</button>\n" +
+                "\n" +
+                "                <label><br>\n" +
+                "\n" +
+                "                </label></div>\n" +
+                "    </div>\n" +
+                "    </form>\n" +
+                "</div>\n" +
+                "</body>\n" +
+                "</html>";
+    }
+
+    public String getLoginPageV3(final String jSessionId, final String serverId, final URL captchaUrl) {
         return "<html>" +
                 "<head>" +
                 "<style>" +
