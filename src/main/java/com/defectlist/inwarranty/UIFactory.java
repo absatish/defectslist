@@ -150,7 +150,168 @@ public class UIFactory {
                 "    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\">\n" +
                 "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" +
                 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                "    <link rel=\"stylesheet\" href=\"styel.css\">\n" +
+                "    <style> " +
+                "           body {\n" +
+                "\tbackground: linear-gradient(90deg, #fc8b6a, #e10467);\t\t\n" +
+                "}\n" +
+                "\n" +
+                "* {\n" +
+                "\tbox-sizing: border-box;\n" +
+                "\tmargin: 0;\n" +
+                "\tpadding: 0;\t\n" +
+                "\tfont-family: Raleway, sans-serif;\n" +
+                "}\n" +
+                "\n" +
+                ".card {\t\t\n" +
+                "\tbackground: linear-gradient(90deg, white , white);\t\t\n" +
+                "\tposition: relative;\t\n" +
+                "\theight: 550px;\n" +
+                "\twidth: 400px;\t\n" +
+                "\tbox-shadow: 0px 0px 24px #5C5696;\n" +
+                "    opacity: 85%;\n" +
+                "    align-content: flex-end;\n" +
+                "    margin: auto;\n" +
+                "    margin-top: 8%;\n" +
+                "    padding-top: 2%;\n" +
+                "    padding-bottom: 2%;\n" +
+                "}\n" +
+                "\n" +
+                ".h1{\n" +
+                "    text-align: center;\n" +
+                "    padding-bottom: 2%;\n" +
+                "}\n" +
+                ".icon{\n" +
+                "    color: red;\n" +
+                "    background-color: #fa2e00;\n" +
+                "}\n" +
+                "\n" +
+                ".line{\n" +
+                "        height: 1px;\n" +
+                "        background: rgb(255, 0, 0);\n" +
+                "}\n" +
+                ".container{\n" +
+                "    margin-top: 10%;\n" +
+                "    padding-left: 10%;\n" +
+                "}\n" +
+                ".label{\n" +
+                "    font-size: large;\n" +
+                "    font-family: 'Poppins', sans-serif;\n" +
+                "    display: inline-block;\n" +
+                "    margin-top: 3%;\n" +
+                "    margin-bottom: 3%;\n" +
+                "}\n" +
+                ".box{\n" +
+                "    color: #000000;\n" +
+                "    border: none;\n" +
+                "    background-color: transparent;\n" +
+                "    resize: none;\n" +
+                "    outline: none;\n" +
+                "    height: 15px;\n" +
+                "    background: rgba(255, 0, 0, 0);\n" +
+                "    font-family: 'Poppins', sans-serif;\n" +
+                "    border-bottom : 2.2px solid #fc8b6a;\n" +
+                "    opacity: 75%;\n" +
+                "    padding-right: 5%;\n" +
+                "\n" +
+                "    \n" +
+                "}\n" +
+                ".box:hover{\n" +
+                "    color: red;\n" +
+                "    border-bottom : 2.6px solid rgb(255, 1, 1);\n" +
+                "}\n" +
+                ".submit{\n" +
+                "    margin-top: 10%;  \n" +
+                "    text-align: center;\n" +
+                "    border: 1px solid rgb(254, 5, 5);\n" +
+                "    color: #fc8b6a;\n" +
+                "    background: transparent;\n" +
+                "    font-size: 14px;\n" +
+                "    padding: 16px 16px;\n" +
+                "    border-radius: 26px;\n" +
+                "    border: 1px solid #d4d3e800;\n" +
+                "    text-transform: uppercase;\n" +
+                "    font-weight: 700;\n" +
+                "    display: flex;\n" +
+                "    align-items: center;\n" +
+                "    width: 34%;\n" +
+                "    color: #fa2e00;\n" +
+                "    box-shadow: 0px 2px 2px #ffcfcf;\n" +
+                "    cursor: pointer;\n" +
+                "    transition: .2s;\n" +
+                "    align-items: center;\n" +
+                "    margin-top: 35px;\n" +
+                "    justify-content: center;\n" +
+                "\n" +
+                "    }\n" +
+                ".check{\n" +
+                "    margin-top: 3%;\n" +
+                "}\n" +
+                ".check1{\n" +
+                "    margin-top: 18%;\n" +
+                "    \n" +
+                "}\n" +
+                ".submit:hover{\n" +
+                "    color: white;\n" +
+                "    background-color: #fa2e00;\n" +
+                "}\n" +
+                ".check:checked::before{\n" +
+                "    color: red;\n" +
+                "\n" +
+                "    background-color: #fa2e00;\n" +
+                "}\n" +
+                ".check:checked::after{\n" +
+                "    background-color:green;\n" +
+                "    color: red;\n" +
+                "    }\n" +
+                "\n" +
+                ".social{\n" +
+                "    display: flex;\n" +
+                "}\n" +
+                "\n" +
+                "\n" +
+                "@media  (max-width: 600px){\n" +
+                "    body {\n" +
+                "        box-sizing: border-box;\n" +
+                "        margin: 0;\n" +
+                "        padding: 0;\t\n" +
+                "        font-family: Raleway, sans-serif;\n" +
+                "    }\n" +
+                "    .card {\t\t\n" +
+                "        background: linear-gradient(90deg, white , white);\t\t\n" +
+                "        position: relative;\t\n" +
+                "        height: 450px;\n" +
+                "        width: 280px;\t\n" +
+                "        box-shadow: 0px 0px 24px #5C5696;\n" +
+                "        opacity: 85%;\n" +
+                "        align-content: flex-end;\n" +
+                "        padding-top: 2%;\n" +
+                "        padding-bottom: 0%;\n" +
+                "        margin-top: 22%;\n" +
+                "        margin-bottom: -13cm;\n" +
+                "\n" +
+                "\n" +
+                "    }\n" +
+                "    .box{\n" +
+                "        color: #000000;\n" +
+                "        border: none;\n" +
+                "        background-color: transparent;\n" +
+                "        resize: none;\n" +
+                "        outline: none;\n" +
+                "        height: 15px;\n" +
+                "        background: rgba(255, 0, 0, 0);\n" +
+                "        font-family: 'Poppins', sans-serif;\n" +
+                "        border-bottom : 2.2px solid #fc8b6a;\n" +
+                "        opacity: 75%;\n" +
+                "        padding-right: 5%;\n" +
+                "    \n" +
+                "        \n" +
+                "    }\n" +
+                "    .box:hover{\n" +
+                "        color: red;\n" +
+                "        border-bottom : 2.6px solid rgb(255, 1, 1);\n" +
+                "    }\n" +
+                "}" +
+                "   </style>" +
                 "    <title>login</title>\n" +
                 "    <script type=text/javascript>\n" +
                 "        function validate() {\n" +
@@ -177,7 +338,7 @@ public class UIFactory {
                 "        <form name=\"billGenerator\" id=\"billGenerator\" method=\"POST\" action=\"/app/v2/defects/login\">\n" +
                 "            <div class=\"container\">\n" +
                 "                <label class=\"label\"><b> <i class=\"fa fa-user\"></i> Username</i> </b></label><br>\n" +
-                "                <input class=\"box\" id=\"username\" type=\"text\" placeholder=\"Enter Username\"><br>\n" +
+                "                <input class=\"box\" id=\"username\" name=\"username\" type=\"text\" placeholder=\"Enter Username\"><br>\n" +
                 "                <label class=\"label\"><b><i class=\"fa fa-key\"></i> Password</b></label><br>\n" +
                 "                <input class=\"box\" type=\"password\" placeholder=\"Enter Password\" id=\"password\" name=\"password\"><br>\n" +
                 "                <label class=\"label\"><i class=\"fa fa-reddit-alien\"></i> <b>Captcha</b></label><br>\n" +
