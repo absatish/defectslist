@@ -25,7 +25,7 @@ public class LoginRequest {
 
     private final String mobile;
 
-    private final String userid;
+    private String userid;
 
     private final String password;
 
@@ -81,13 +81,17 @@ public class LoginRequest {
         String errorMessage = "<script type=text/javascript>";
         final String originalText = "<script type=text/javascript>";
 
-        if (userid.isEmpty() || userid.isBlank()) {
+
+        if (userid == null || userid.isEmpty() || userid.isBlank()) {
             errorMessage += "document.getElementById('error-username').innerHTML = '<font color=red size=1px>Username&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
+        } else {
+            userid = userid.replaceAll(" ", "");
         }
-        if (!(userid.equalsIgnoreCase("ASP8568") || userid.equalsIgnoreCase("ASI7953"))) {
+
+        if (!("ASP8568".equalsIgnoreCase(userid) || "ASI7953".equalsIgnoreCase(userid))) {
             throw new ProhibitedUserTriedToLoginException("No Content Available to show");
         }
-        if (password.isBlank() || password.isEmpty()) {
+        if (password == null || password.isBlank() || password.isEmpty()) {
             errorMessage += "document.getElementById('error-password').innerHTML = '<font color=red size=1px>Password&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
         }
         if (j_captcha_response.isEmpty() || j_captcha_response.isBlank()) {
