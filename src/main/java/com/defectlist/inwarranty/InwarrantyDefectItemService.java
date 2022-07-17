@@ -4,21 +4,23 @@ import com.amazonaws.HttpMethod;
 import com.defectlist.inwarranty.configuration.CacheType;
 import com.defectlist.inwarranty.connector.ServitiumCrmConnector;
 import com.defectlist.inwarranty.email.EmailService;
+import com.defectlist.inwarranty.exception.UnknownException;
 import com.defectlist.inwarranty.httprequestheaders.ContentRequest;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
 import com.defectlist.inwarranty.httprequestheaders.LogoutRequest;
 import com.defectlist.inwarranty.model.CaptchaResponse;
 import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
+import com.defectlist.inwarranty.ui.Banners;
+import com.defectlist.inwarranty.ui.MessageType;
+import com.defectlist.inwarranty.ui.UIFactory;
 import com.defectlist.inwarranty.utils.ListUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
 import java.util.*;
@@ -135,20 +137,23 @@ public class InwarrantyDefectItemService {
             LOGGER.info("put session values into cache, serverId : {}", serverId);
 
             cacheService.put(CacheType.SESSION.getCacheName(), SERVER_ID, serverId);
-        } catch (final IndexOutOfBoundsException indexOutOfBoundsException) {
-
-            jSessionId = cacheService.get(CacheType.SESSION.getCacheName(), JSESSION_ID, String.class).get();
-            serverId = cacheService.get(CacheType.SESSION.getCacheName(), SERVER_ID, String.class).get();
+            } catch (final IndexOutOfBoundsException indexOutOfBoundsException) {
+            try {
+                jSessionId = cacheService.get(CacheType.SESSION.getCacheName(), JSESSION_ID, String.class).get();
+                serverId = cacheService.get(CacheType.SESSION.getCacheName(), SERVER_ID, String.class).get();
+            } catch (final Exception exception) {
+                throw new RuntimeException(exception.getMessage());
+            }
 
         } catch (final Exception exception) {
             LOGGER.error("An exception occurred while trying to fetch headers.", exception);
-            return "<font color=red>Something went wrong..! Please try again after few minutes..!</font><br>";
+            throw new UnknownException("Something went wrong..! Please try again after few minutes..! Reason : " + exception.getMessage());
         }
         final URL url = s3Service.generatePresignedUrl(bucketName, KEY_NAME, Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
         if (Version.VERSION_1.equals(version)) {
             return uiFactory.getLoginPage(jSessionId, serverId, url);
         }
-        return uiFactory.getLoginPageV2(jSessionId, serverId, url);
+        return uiFactory.getLoginPageV3(jSessionId, serverId, url);
     }
 
     public GridItem getJobSheet(final String spareName, final String complaintId, final String loggedInUserName) {
