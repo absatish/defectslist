@@ -1,10 +1,11 @@
-package com.defectlist.inwarranty;
+package com.defectlist.inwarranty.resource;
 
+import com.defectlist.inwarranty.InwarrantyDefectItemService;
+import com.defectlist.inwarranty.Version;
 import com.defectlist.inwarranty.email.EmailService;
 import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
 import com.defectlist.inwarranty.exception.NoDataFoundException;
 import com.defectlist.inwarranty.exception.ProhibitedUserTriedToLoginException;
-import com.defectlist.inwarranty.exception.UnknownException;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
 import com.defectlist.inwarranty.ui.Banners;
 import com.defectlist.inwarranty.ui.MessageType;
