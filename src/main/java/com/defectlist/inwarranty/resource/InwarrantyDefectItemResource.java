@@ -52,8 +52,8 @@ public class InwarrantyDefectItemResource {
 
     @GetMapping
     public String initialPage() {
-        //return DEPRICATION_TEXT;
-        return inwarrantyDefectItemService.getPreload(Version.VERSION_1);
+        return DEPRICATION_TEXT;
+//        return inwarrantyDefectItemService.getPreload(Version.VERSION_1);
     }
 
     @GetMapping("/login")
@@ -63,24 +63,25 @@ public class InwarrantyDefectItemResource {
 
     @PostMapping(path = "/login")
     public String login(@RequestParam final Map<String, String> requestParams) {
-        try {
-            final LoginRequest loginRequest = buildLoginRequest(requestParams);
-            validateLoginRequest(loginRequest);
-            if (loginRequest.isShowOnlyNumbers()) {
-                return inwarrantyDefectItemService.loginAndLoadBillNumbers(loginRequest);
-            }
-            return inwarrantyDefectItemService.login(loginRequest);
-        } catch (final InvalidLoginRequestException invalidLoginRequestException) {
-            return getInvalidLoginRequestResponse(invalidLoginRequestException);
-        } catch (final NoDataFoundException noDataFoundException) {
-            return "<hr><center><font color=green size=5px>" + noDataFoundException.getMessage()
-                    + "</font></center></hr><br>";
-        } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
-            emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
-            return prohibitedUserTriedToLoginException.getMessage();
-        } catch (final Exception exception) {
-            return getUnknownExceptionResponse(exception);
-        }
+//        try {
+//            final LoginRequest loginRequest = buildLoginRequest(requestParams);
+//            validateLoginRequest(loginRequest);
+//            if (loginRequest.isShowOnlyNumbers()) {
+//                return inwarrantyDefectItemService.loginAndLoadBillNumbers(loginRequest);
+//            }
+//            return inwarrantyDefectItemService.login(loginRequest);
+//        } catch (final InvalidLoginRequestException invalidLoginRequestException) {
+//            return getInvalidLoginRequestResponse(invalidLoginRequestException);
+//        } catch (final NoDataFoundException noDataFoundException) {
+//            return "<hr><center><font color=green size=5px>" + noDataFoundException.getMessage()
+//                    + "</font></center></hr><br>";
+//        } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
+//            emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
+//            return prohibitedUserTriedToLoginException.getMessage();
+//        } catch (final Exception exception) {
+//            return getUnknownExceptionResponse(exception);
+//        }
+        return DEPRICATION_TEXT;
     }
 
     private void validateLoginRequest(final LoginRequest loginRequest) throws InvalidLoginRequestException {
