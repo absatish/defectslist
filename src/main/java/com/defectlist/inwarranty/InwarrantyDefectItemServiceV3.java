@@ -9,6 +9,7 @@ import com.defectlist.inwarranty.httprequestheaders.ContentRequest;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
 import com.defectlist.inwarranty.httprequestheaders.LogoutRequest;
 import com.defectlist.inwarranty.model.*;
+import com.defectlist.inwarranty.ui.LineImage;
 import com.defectlist.inwarranty.ui.UIFactory;
 import com.defectlist.inwarranty.utils.ListUtils;
 import org.slf4j.Logger;
@@ -96,6 +97,9 @@ public class InwarrantyDefectItemServiceV3 {
             return LoginResponse.builder()
                     .complaintIds(content)
                     .loginSuccess(true)
+                    .loggedInUser(loggedInUserName)
+                    .userId(loginRequest.getUserId())
+                    .verticalImageUrl(generatePresignedUrl(LineImage.VERTICAL_LINE_IMAGE))
                     .size(content.size())
                     .build();
         }
@@ -115,9 +119,24 @@ public class InwarrantyDefectItemServiceV3 {
             return LoginResponse.builder()
                     .complaintIds(callIds)
                     .size(callIds.size())
+                    .verticalImageUrl(generatePresignedUrl(LineImage.VERTICAL_LINE_IMAGE))
+                    .horizontalImageUrl(generatePresignedUrl(LineImage.HORIZONTAL_LINE_IMAGE))
+                    .loggedInUser(loggedInUserName)
+                    .loginSuccess(true)
+                    .userId(loginRequest.getUserId())
                     .build();
         }
         return null;
+    }
+
+    public URL generatePresignedUrl(final LineImage type) {
+        Optional<URL> urlFromCache = cacheService.get(CacheType.LINE_URL.getCacheName(), type.getName(), URL.class);
+        if (urlFromCache.isPresent()) {
+            return urlFromCache.get();
+        }
+        URL url = s3Service.generatePresignedUrl(bucketName, type.getName(), Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
+        cacheService.put(CacheType.LINE_URL.getCacheName(), type.getName(), url);
+        return url;
     }
 
     public LoginPageInfo getPreload() {

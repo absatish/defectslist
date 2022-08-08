@@ -9,6 +9,7 @@ import com.defectlist.inwarranty.exception.ProhibitedUserTriedToLoginException;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
 import com.defectlist.inwarranty.ui.Banners;
 import com.defectlist.inwarranty.ui.MessageType;
+import com.defectlist.inwarranty.ui.UIFactory;
 import com.defectlist.inwarranty.utils.RequestParameterResolver;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,17 +51,34 @@ public class InwarrantyDefectItemResourceV2 {
     }
 
     @GetMapping
-    public String initialPage() {
-        try {
-            return inwarrantyDefectItemService.getPreload(Version.VERSION_2);
-        } catch (final Exception exception) {
-            return Banners.getMessageBanner(MessageType.ERROR, exception.getMessage());
-        }
+    public String firstPage() {
+        return UIFactory.getFirstPage();
     }
 
     @GetMapping("/login")
     public String login() {
-        return Banners.getMessageBanner(MessageType.WARNING, "Invalid Session. Please first login..!") + initialPage();
+        return Banners.getMessageBanner(MessageType.WARNING, "Invalid Session. Please first login..!") + firstPage();
+    }
+
+    @GetMapping("/prelogin")
+    public String preLoad() {
+        return firstPage();
+    }
+    @PostMapping(path = "/prelogin")
+    public String preLogin(@RequestParam final Map<String, String> requestParams) {
+
+        try {
+            final LoginRequest loginRequest = buildLoginRequest(requestParams);
+            loginRequest.validateUsername();
+            return initialPage(loginRequest.getUserId());
+        } catch (final InvalidLoginRequestException invalidLoginRequestException) {
+            return getInvalidLoginRequestResponse(invalidLoginRequestException);
+        } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
+            emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
+            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
+        } catch (final Exception exception) {
+            return getUnknownExceptionResponse(exception);
+        }
     }
 
     @PostMapping(path = "/login")
@@ -81,9 +99,19 @@ public class InwarrantyDefectItemResourceV2 {
             return Banners.getMessageBanner(MessageType.INFO, noDataFoundException.getMessage());
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
             emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
-            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage());
+            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
         } catch (final Exception exception) {
             return getUnknownExceptionResponse(exception);
+        }
+    }
+
+    private String initialPage(final String userId) {
+        try {
+            final String initialPage = inwarrantyDefectItemService.getPreload(Version.VERSION_2);
+            return initialPage.replaceAll("id=\"username\" name=\"username\"",
+                    "id=\"username\" name=\"username\" readonly value=" + userId + " ");
+        } catch (final Exception exception) {
+            return Banners.getMessageBanner(MessageType.ERROR, exception.getMessage());
         }
     }
 
@@ -104,7 +132,7 @@ public class InwarrantyDefectItemResourceV2 {
     }
 
     private String getInvalidLoginRequestResponse(final InvalidLoginRequestException invalidLoginRequestException) {
-        return initialPage() + invalidLoginRequestException.getMessage();
+        return firstPage() + invalidLoginRequestException.getMessage();
     }
 
     private String getUnknownExceptionResponse(final Exception exception) {

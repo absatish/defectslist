@@ -13,8 +13,10 @@ import com.defectlist.inwarranty.model.GridItem;
 import com.defectlist.inwarranty.model.LoginPageInfo;
 import com.defectlist.inwarranty.model.LoginResponse;
 import com.defectlist.inwarranty.ui.Banners;
+import com.defectlist.inwarranty.ui.LineImage;
 import com.defectlist.inwarranty.ui.MessageType;
 import com.defectlist.inwarranty.utils.RequestParameterResolver;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -63,7 +65,7 @@ public class InwarrantyDefectItemResourceV3 {
     @GetMapping
     public ResponseEntity<LoginPageInfo> initialPage() {
         try {
-            Thread.sleep(1000);
+//            Thread.sleep(1000);
             return makeResponseEntity(inwarrantyDefectItemService.getPreload());
         } catch (final Exception exception) {
             return makeResponseEntity(LoginPageInfo.builder()
@@ -92,7 +94,7 @@ public class InwarrantyDefectItemResourceV3 {
         } catch (final InvalidLoginRequestException | NoDataFoundException exception) {
             return getLoginResponseForException(exception);
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
-            emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
+//            emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
             return getLoginResponseForException(prohibitedUserTriedToLoginException);
         } catch (final Exception exception) {
             return getUnknownExceptionResponse(exception);
@@ -137,31 +139,12 @@ public class InwarrantyDefectItemResourceV3 {
                         ,"456", "789", "101112", "131415", "161718","456", "789", "101112", "131415", "161718"
                         ,"456", "789", "101112", "131415", "161718"
                         ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
                         ,"456", "789", "101112", "131415", "161718"))
                 .loggedInUser("Siva")
                 .userId("userId")
                 .size(60)
+                .horizontalImageUrl(inwarrantyDefectItemService.generatePresignedUrl(LineImage.HORIZONTAL_LINE_IMAGE))
+                .verticalImageUrl(inwarrantyDefectItemService.generatePresignedUrl(LineImage.VERTICAL_LINE_IMAGE))
                 .build();
         var result = makeResponseEntity(loginPageInfo);
         return result;
@@ -171,11 +154,11 @@ public class InwarrantyDefectItemResourceV3 {
     public ResponseEntity<GridItem> getGridItem3(@PathVariable("complaint-id") final String complaintId) throws InterruptedException, MalformedURLException {
 
         System.out.println(complaintId);
-        Thread.sleep(1000*Integer.valueOf(complaintId.substring(0,1)));
+//        Thread.sleep(1000*Integer.valueOf(complaintId.substring(0,1)));
 //        return makeResponseEntity(GridItem.builder()
 //                .errorMessage("Error")
 //                .build());
-        return makeResponseEntity(inwarrantyDefectItemService.getJobSheet(DefectivePartType.ARMATURE.name(), "B22072602062", "VIKRAM SIVA KUMAR"));
+        return makeResponseEntity(inwarrantyDefectItemService.getJobSheet(DefectivePartType.ARMATURE.name(), complaintId, "VIKRAM SIVA KUMAR"));
 //        Thread.sleep(10000);
 //        GridItem gridItem = GridItem.builder()
 //                .complaintNumber(complaintId)

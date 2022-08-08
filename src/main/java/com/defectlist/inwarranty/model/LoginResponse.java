@@ -3,6 +3,7 @@ package com.defectlist.inwarranty.model;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.net.URL;
 import java.util.List;
 
 @Builder
@@ -20,5 +21,9 @@ public class LoginResponse {
     private final String loggedInUser;
 
     private final String userId;
+
+    private final URL horizontalImageUrl;
+
+    private final URL verticalImageUrl;
 
 }

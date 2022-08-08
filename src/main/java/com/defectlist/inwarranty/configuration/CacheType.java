@@ -3,7 +3,8 @@ package com.defectlist.inwarranty.configuration;
 public enum CacheType {
 
     GRID_ITEM("grid-item"),
-    SESSION("session");
+    SESSION("session"),
+    LINE_URL("line-url");
 
     private final String cacheName;
 
