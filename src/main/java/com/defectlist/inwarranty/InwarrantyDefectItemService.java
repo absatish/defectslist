@@ -12,6 +12,7 @@ import com.defectlist.inwarranty.model.CaptchaResponse;
 import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
 import com.defectlist.inwarranty.ui.Banners;
+import com.defectlist.inwarranty.ui.LineImage;
 import com.defectlist.inwarranty.ui.MessageType;
 import com.defectlist.inwarranty.ui.UIFactory;
 import com.defectlist.inwarranty.utils.ListUtils;
@@ -29,6 +30,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import static com.defectlist.inwarranty.ui.LineImage.HORIZONTAL_LINE_IMAGE;
+import static com.defectlist.inwarranty.ui.LineImage.VERTICAL_LINE_IMAGE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
@@ -162,6 +165,16 @@ public class InwarrantyDefectItemService {
         return gridItemFromCache.orElseGet(() -> getJobSheet(spareName, complaintId, 1, loggedInUserName));
     }
 
+    public URL generatePresignedUrl(final LineImage type) {
+        Optional<URL> urlFromCache = cacheService.get(CacheType.LINE_URL.getCacheName(), type.getName(), URL.class);
+        if (urlFromCache.isPresent()) {
+            return urlFromCache.get();
+        }
+        URL url = s3Service.generatePresignedUrl(bucketName, type.getName(), Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
+        cacheService.put(CacheType.LINE_URL.getCacheName(), type.getName(), url);
+        return url;
+    }
+
     private GridItem getJobSheet(final String spareName, final String complaintId, final int tryCount,
                                  final String loggedInUserName) {
         LOGGER.info("Get jobsheet, complaintId : {}, tryCount : {}", complaintId, tryCount);
@@ -184,10 +197,8 @@ public class InwarrantyDefectItemService {
     private String getOnlyCallIds(final LoginRequest loginRequest, final String loggedInUserName) {
         final Map<String, String> callIds = loadCallIds(loginRequest);
         final Map<String, List<GridItem>> gridItemsMap = buildGridItems(callIds, loggedInUserName);
-        final URL verticleImage = s3Service
-                .generatePresignedUrl(bucketName, "cut-vertical.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
-        final URL horizontalImage = s3Service
-                .generatePresignedUrl(bucketName, "cut.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
+        final URL verticleImage = generatePresignedUrl(VERTICAL_LINE_IMAGE);
+        final URL horizontalImage = generatePresignedUrl(HORIZONTAL_LINE_IMAGE);
         return uiFactory.buildGridPageWithBillNumbers(gridItemsMap, verticleImage, horizontalImage);
     }
 

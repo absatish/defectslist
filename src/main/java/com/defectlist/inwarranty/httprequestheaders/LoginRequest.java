@@ -81,21 +81,29 @@ public class LoginRequest {
         String errorMessage = "<script type=text/javascript>";
         final String originalText = "<script type=text/javascript>";
 
+        validateUsername();
 
-        if (userid == null || userid.isEmpty() || userid.isBlank()) {
-            errorMessage += "document.getElementById('error-username').innerHTML = '<font color=red size=1px>Username&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
-        } else {
-            userid = userid.replaceAll(" ", "");
-        }
-
-        if (!("ASP8568".equalsIgnoreCase(userid) || "ASI7953".equalsIgnoreCase(userid))) {
-            throw new ProhibitedUserTriedToLoginException("No Content Available to show");
-        }
         if (password == null || password.isBlank() || password.isEmpty()) {
             errorMessage += "document.getElementById('error-password').innerHTML = '<font color=red size=1px>Password&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
         }
         if (j_captcha_response.isEmpty() || j_captcha_response.isBlank()) {
             errorMessage += "document.getElementById('error-captcha').innerHTML = '<font color=red size=1px>Captcha&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
+        }
+        if (!(errorMessage.equals(originalText))) {
+            throw new InvalidLoginRequestException(errorMessage + "</script>");
+        }
+    }
+
+    public void validateUsername() throws InvalidLoginRequestException {
+        String errorMessage = "<script type=text/javascript>";
+        final String originalText = "<script type=text/javascript>";
+        if (userid == null || userid.isEmpty() || userid.isBlank()) {
+            errorMessage += "document.getElementById('error-username').innerHTML = '<font color=red size=1px>Username&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
+        } else {
+            userid = userid.replaceAll(" ", "");
+        }
+        if (!("ASP8568".equalsIgnoreCase(userid) || "ASI7953".equalsIgnoreCase(userid))) {
+            throw new ProhibitedUserTriedToLoginException("No Content Available to show");
         }
         if (!(errorMessage.equals(originalText))) {
             throw new InvalidLoginRequestException(errorMessage + "</script>");

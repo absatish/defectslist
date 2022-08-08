@@ -22,8 +22,14 @@ public class GridItem {
 
     private final String techName;
 
+    private final String errorMessage;
+
     public String getComplaintNumber() {
         return this.complaintNumber;
+    }
+
+    public String getErrorMessage() {
+        return this.errorMessage;
     }
 
     public String getDate() {
@@ -80,6 +86,8 @@ public class GridItem {
 
         private String techName;
 
+        private String errorMessage;
+
         public GridItemBuilder branchName(final String branchName) {
             this.branchName = branchName;
             return this;
@@ -130,6 +138,11 @@ public class GridItem {
             return this;
         }
 
+        public GridItemBuilder errorMessage(final String errorMessage) {
+            this.errorMessage = errorMessage;
+            return this;
+        }
+
         public GridItem build() {
             return new GridItem(this);
         }
@@ -147,6 +160,7 @@ public class GridItem {
         this.spareName = gridItemBuilder.spareName;
         this.actualFault = gridItemBuilder.actualFault;
         this.techName = gridItemBuilder.techName;
+        this.errorMessage = gridItemBuilder.errorMessage;
     }
 
     public static GridItemBuilder builder() {

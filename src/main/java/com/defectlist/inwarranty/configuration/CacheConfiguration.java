@@ -34,9 +34,14 @@ public class CacheConfiguration {
                 .maximumSize(1000)
                 .ticker(ticker)
                 .build());
+        final CaffeineCache cacheLineUrl = new CaffeineCache(CacheType.LINE_URL.getCacheName(), Caffeine.newBuilder()
+                .expireAfterWrite(4, TimeUnit.MINUTES)
+                .maximumSize(1000)
+                .ticker(ticker)
+                .build());
 
         final SimpleCacheManager cacheManager = new SimpleCacheManager();
-        cacheManager.setCaches(Arrays.asList(cacheSessionId, cacheGridItems));
+        cacheManager.setCaches(Arrays.asList(cacheSessionId, cacheGridItems, cacheLineUrl));
         return cacheManager;
     }
 }
