@@ -107,9 +107,11 @@ public class InwarrantyDefectItemResourceV2 {
 
     private String initialPage(final String userId) {
         try {
-            final String initialPage = inwarrantyDefectItemService.getPreload(Version.VERSION_2);
+            String initialPage = inwarrantyDefectItemService.getPreload(Version.VERSION_1);
             return initialPage.replaceAll("id=\"username\" name=\"username\"",
-                    "id=\"username\" name=\"username\" readonly value=" + userId + " ");
+                    "id=\"username\" name=\"username\" readonly value=" + userId + " ")
+                    .replaceAll("placeholder=username type=text id=username name=username",
+                            "placeholder=username  readonly type=text id=username name=username value=" + userId + " ");
         } catch (final Exception exception) {
             return Banners.getMessageBanner(MessageType.ERROR, exception.getMessage());
         }
@@ -128,7 +130,7 @@ public class InwarrantyDefectItemResourceV2 {
                 RequestParameterResolver.getValue(requestParams, SERVER_NAME),
                 RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER).equalsIgnoreCase(ON),
                 RequestParameterResolver.getValue(requestParams, SHOW_ONLY_NUMBERS).equalsIgnoreCase(ON),
-                Version.VERSION_2);
+                Version.VERSION_1);
     }
 
     private String getInvalidLoginRequestResponse(final InvalidLoginRequestException invalidLoginRequestException) {

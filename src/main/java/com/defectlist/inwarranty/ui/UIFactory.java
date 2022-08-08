@@ -192,7 +192,7 @@ public class UIFactory {
                 "\t<body>\n" +
                 "<center><b><h4>Generate Defectives List</h4></b></center><hr>" +
                 "\t\t\t\t<div class=\"form-group\">" +
-                "<form name='billGenerator' id='billGenerator' method='POST' action='/app/v1/defects/login'>" +
+                "<form name='billGenerator' id='billGenerator' method='POST' action='/app/v2/defects/login'>" +
                 "<center>" +
                 "<div class=\"container\" style=\"width:500px; align:center;\">\n" +
                 "\t\t\t\t<div class=\"form-group\">\n" +
