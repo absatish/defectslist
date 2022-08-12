@@ -1,6 +1,5 @@
 package com.defectlist.inwarranty.resource;
 
-import com.defectlist.inwarranty.InwarrantyDefectItemService;
 import com.defectlist.inwarranty.InwarrantyDefectItemServiceV3;
 import com.defectlist.inwarranty.Version;
 import com.defectlist.inwarranty.email.EmailService;
@@ -12,11 +11,8 @@ import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
 import com.defectlist.inwarranty.model.LoginPageInfo;
 import com.defectlist.inwarranty.model.LoginResponse;
-import com.defectlist.inwarranty.ui.Banners;
 import com.defectlist.inwarranty.ui.LineImage;
-import com.defectlist.inwarranty.ui.MessageType;
 import com.defectlist.inwarranty.utils.RequestParameterResolver;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +22,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -150,30 +145,16 @@ public class InwarrantyDefectItemResourceV3 {
         return result;
     }
 
-    @GetMapping("/test/grid-item/{complaint-id}")
+    @GetMapping("/grid-item/{complaint-id}")
     public ResponseEntity<GridItem> getGridItem3(@PathVariable("complaint-id") final String complaintId) throws InterruptedException, MalformedURLException {
-
-        System.out.println(complaintId);
-//        Thread.sleep(1000*Integer.valueOf(complaintId.substring(0,1)));
-//        return makeResponseEntity(GridItem.builder()
-//                .errorMessage("Error")
-//                .build());
-        return makeResponseEntity(inwarrantyDefectItemService.getJobSheet(DefectivePartType.ARMATURE.name(), complaintId, "VIKRAM SIVA KUMAR"));
-//        Thread.sleep(10000);
-//        GridItem gridItem = GridItem.builder()
-//                .complaintNumber(complaintId)
-//                .branchName("ELURU")
-//                .actualFault("actualFault"+complaintId)
-//                .date("29-07-2022")
-//                .dop("dop"+complaintId)
-//                .model("model"+complaintId)
-//                .product("product"+complaintId)
-//                .serialNumber("serialNumber"+complaintId)
-//                .spareName("spareName"+complaintId)
-//                .techName("techName"+complaintId)
-//                .build();
-//        var result = makeResponseEntity(gridItem);
-//        return result;
+      try {
+          return makeResponseEntity(inwarrantyDefectItemService.getJobSheet(DefectivePartType.ARMATURE.name(), complaintId, "VIKRAM SIVA KUMAR"));
+      } catch (final Exception exception) {
+          return makeResponseEntity(GridItem.builder()
+                  .complaintNumber(complaintId)
+                  .errorMessage(exception.getMessage())
+                  .build());
+      }
     }
 
     private ResponseEntity<LoginResponse> getLoginResponseForException(final Exception exception) {
@@ -194,7 +175,7 @@ public class InwarrantyDefectItemResourceV3 {
 
     private <T> ResponseEntity<T> makeResponseEntity(final T body) {
         MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.set("Access-Control-Allow-Origin", "http://localhost:3000");
+        headers.set("Access-Control-Allow-Origin", "https://absatish.github.io");
         headers.set("Access-Control-Allow-Methods", "GET, POST");
         headers.set("Access-Control-Allow-Headers", "Content-Type");
         return new ResponseEntity<T>(body, headers, HttpStatus.OK.value());
