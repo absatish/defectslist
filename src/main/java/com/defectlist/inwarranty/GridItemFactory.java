@@ -18,7 +18,7 @@ public class GridItemFactory {
         Stream.iterate(0, lineNumber -> ++lineNumber)
                 .limit(lines.length)
                 .forEach(lineNumber -> buildRequiredInfo(lines[lineNumber], lineNumber, gridItemBuilder));
-        gridItemBuilder.branchName("ELURU");
+        gridItemBuilder.branchName(loggedInUserName.contains("VIKRAM") ? "ELURU" : "");
         gridItemBuilder.actualFault("Shortage");
         gridItemBuilder.complaintNumber(complainId);
         gridItemBuilder.techName(loggedInUserName);

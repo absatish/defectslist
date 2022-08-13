@@ -26,4 +26,10 @@ public class LoginResponse {
 
     private final URL verticalImageUrl;
 
+    private final URL captchaImageUrl;
+
+    private final String sessionId;
+
+    private final String severId;
+
 }
