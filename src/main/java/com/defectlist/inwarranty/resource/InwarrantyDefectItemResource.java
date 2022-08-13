@@ -7,6 +7,7 @@ import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
 import com.defectlist.inwarranty.exception.NoDataFoundException;
 import com.defectlist.inwarranty.exception.ProhibitedUserTriedToLoginException;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
+import com.defectlist.inwarranty.ui.UIFactory;
 import com.defectlist.inwarranty.utils.RequestParameterResolver;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,8 @@ public class InwarrantyDefectItemResource {
 
     @GetMapping
     public String initialPage() {
-        return DEPRICATION_TEXT;
+        return UIFactory.getFirstPage();
+//        return DEPRICATION_TEXT;
 //        return inwarrantyDefectItemService.getPreload(Version.VERSION_1);
     }
 

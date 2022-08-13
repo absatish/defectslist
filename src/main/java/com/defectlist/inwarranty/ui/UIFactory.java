@@ -17,6 +17,7 @@ public class UIFactory {
     public static String getFirstPage() {
         return "<html>" +
                 "<title>Login Page</title>" +
+                "<meta http-equiv = \"refresh\" content = \"5; url = https://absatish.github.io/defectslist-ui\" />" +
                 "\t\t<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\">\n" +
                 "<style>" +
                 ".switch {\n" +
@@ -93,16 +94,16 @@ public class UIFactory {
                 "<form name='billGenerator' id='billGenerator' method='POST' action='/app/v2/defects/prelogin'>" +
                 "<center>" +
                 "<div class=\"container\" style=\"width:500px; align:center;\">\n" +
-                "\t\t\t\t<div class=\"form-group\">\n" +
-                "\t\t\t\t  <label class=\"control-label col-sm-4\" style=\"margin-top:0.5%;\" for=\"Username\">Username</label>\n" +
-                "\t\t\t\t  <div class=\"col-sm-6\">  " +
-                " <input class=form-control placeholder=username type=text id=username name=username></div>" +
-                "<div class=\"col-sm-2\" style=\"margin-left:0px;\" id=error-username></div>" +
-                "\t\t\t\t<hr><div class=\"form-group\">\n" +
-                "\t\t\t\t  <div class=\"col-sm-12\">  " +
-                "<input class='btn btn-default' style='align:right;' name='Login' " +
-                "value='Login' type=button onclick=javascript:validate()></div></div>" +
-                "</table></center>" +
+//                " <input class=form-control placeholder=username type=text id=username name=username></div>" +
+//                "<div class=\"col-sm-2\" style=\"margin-left:0px;\" id=error-username></div>" +
+//                "\t\t\t\t<hr><div class=\"form-group\">\n" +
+//                "\t\t\t\t  <div class=\"col-sm-12\">  " +
+//                "<input class='btn btn-default' style='align:right;' name='Login' " +
+//                "value='Login' type=button onclick=javascript:validate()></div></div>" +
+//                "</table></center>" +
+                "" +
+                "Please use our front end services." +
+                "<br> Please wait while we redirect you to <a href=https://absatish.github.io/defectslist-ui>https://absatish.github.io/defectslist-ui " +
                 "</form>\n" +
                 "</body>\n" +
                 "</html>";

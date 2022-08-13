@@ -147,7 +147,7 @@ public class InwarrantyDefectItemResourceV3 {
 
     private <T> ResponseEntity<T> makeResponseEntity(final T body) {
         MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.set("Access-Control-Allow-Origin", "https://winter-citizen-328416.el.r.appspot.com");
+        headers.set("Access-Control-Allow-Origin", "https://absatish.github.io");
         headers.set("Access-Control-Allow-Methods", "GET, POST");
         headers.set("Access-Control-Allow-Headers", "Content-Type");
         return new ResponseEntity<T>(body, headers, HttpStatus.OK.value());
