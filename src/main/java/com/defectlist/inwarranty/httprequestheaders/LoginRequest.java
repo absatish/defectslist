@@ -9,6 +9,8 @@ import lombok.*;
 @Builder
 public class LoginRequest {
 
+    private static final String UNDEFINED = "undefined";
+
     public LoginRequest(final String mobile, final String userid, final String password, final String j_captcha_response,
                         final String jSessionId, final String server, final boolean printOthers,
                         final boolean showOnlyNumbers, final Version version) {
@@ -83,10 +85,11 @@ public class LoginRequest {
 
         validateUsername();
 
-        if (password == null || password.isBlank() || password.isEmpty()) {
+
+        if (UNDEFINED.equals(password) || password == null || password.isBlank() || password.isEmpty()) {
             errorMessage += "document.getElementById('error-password').innerHTML = '<font color=red size=1px>Password&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
         }
-        if (j_captcha_response.isEmpty() || j_captcha_response.isBlank()) {
+        if (UNDEFINED.equals(j_captcha_response) || j_captcha_response.isEmpty() || j_captcha_response.isBlank()) {
             errorMessage += "document.getElementById('error-captcha').innerHTML = '<font color=red size=1px>Captcha&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
         }
         if (!(errorMessage.equals(originalText))) {
@@ -97,12 +100,12 @@ public class LoginRequest {
     public void validateUsername() throws InvalidLoginRequestException {
         String errorMessage = "<script type=text/javascript>";
         final String originalText = "<script type=text/javascript>";
-        if (userid == null || userid.isEmpty() || userid.isBlank()) {
+        if (UNDEFINED.equals(userid) || userid == null || userid.isEmpty() || userid.isBlank()) {
             errorMessage += "document.getElementById('error-username').innerHTML = '<font color=red size=1px>Username&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
         } else {
             userid = userid.replaceAll(" ", "");
         }
-        if (!("ASP8568".equalsIgnoreCase(userid) || "ASI7953".equalsIgnoreCase(userid))) {
+        if (!(UNDEFINED.equals(userid) || userid == null || userid.isBlank() || userid.isBlank()) && !("ASP8568".equalsIgnoreCase(userid) || "ASI7953".equalsIgnoreCase(userid))) {
             throw new ProhibitedUserTriedToLoginException("No Content Available to show");
         }
         if (!(errorMessage.equals(originalText))) {

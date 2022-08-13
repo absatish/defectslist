@@ -60,7 +60,6 @@ public class InwarrantyDefectItemResourceV3 {
     @GetMapping
     public ResponseEntity<LoginPageInfo> initialPage() {
         try {
-//            Thread.sleep(1000);
             return makeResponseEntity(inwarrantyDefectItemService.getPreload());
         } catch (final Exception exception) {
             return makeResponseEntity(LoginPageInfo.builder()
@@ -89,10 +88,24 @@ public class InwarrantyDefectItemResourceV3 {
         } catch (final InvalidLoginRequestException | NoDataFoundException exception) {
             return getLoginResponseForException(exception);
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
-//            emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
+            emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
             return getLoginResponseForException(prohibitedUserTriedToLoginException);
         } catch (final Exception exception) {
             return getUnknownExceptionResponse(exception);
+        }
+    }
+
+    @GetMapping("/grid-item/{complaint-id}")
+    public ResponseEntity<GridItem> getGridItem3(@PathVariable("complaint-id") final String complaintId,
+                                                 @RequestParam(name = "loggedInUser", required = false) final String loggedInUser) {
+        try {
+            return makeResponseEntity(inwarrantyDefectItemService.getJobSheet(DefectivePartType.ARMATURE.name(),
+                    complaintId, loggedInUser));
+        } catch (final Exception exception) {
+            return makeResponseEntity(GridItem.builder()
+                    .complaintNumber(complaintId)
+                    .errorMessage(exception.getMessage())
+                    .build());
         }
     }
 
@@ -112,55 +125,14 @@ public class InwarrantyDefectItemResourceV3 {
                 Version.VERSION_2);
     }
 
-
-    @GetMapping("/test")
-    public ResponseEntity<LoginPageInfo> getGridItem() throws InterruptedException, MalformedURLException {
-        LoginPageInfo loginPageInfo = LoginPageInfo.builder()
-                .serverId("serverId")
-                .sessionId("sessionId")
-                .build();
-        MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.set("Access-Control-Allow-Origin", "http://localhost:3000");
-        Thread.sleep(1000);
-        return makeResponseEntity(loginPageInfo);
-    }
-
-    @PostMapping("/test/login")
-    public ResponseEntity<LoginResponse> getGridItem2(@RequestParam final Map<String, String> requestParams) throws InterruptedException, MalformedURLException {
-        LoginResponse loginPageInfo = LoginResponse.builder()
-                .loginSuccess(true)
-                .complaintIds(List.of("123","456", "789", "101112", "131415", "161718","456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718","456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"
-                        ,"456", "789", "101112", "131415", "161718"))
-                .loggedInUser("Siva")
-                .userId("userId")
-                .size(60)
-                .horizontalImageUrl(inwarrantyDefectItemService.generatePresignedUrl(LineImage.HORIZONTAL_LINE_IMAGE))
-                .verticalImageUrl(inwarrantyDefectItemService.generatePresignedUrl(LineImage.VERTICAL_LINE_IMAGE))
-                .build();
-        var result = makeResponseEntity(loginPageInfo);
-        return result;
-    }
-
-    @GetMapping("/grid-item/{complaint-id}")
-    public ResponseEntity<GridItem> getGridItem3(@PathVariable("complaint-id") final String complaintId) throws InterruptedException, MalformedURLException {
-      try {
-          return makeResponseEntity(inwarrantyDefectItemService.getJobSheet(DefectivePartType.ARMATURE.name(), complaintId, "VIKRAM SIVA KUMAR"));
-      } catch (final Exception exception) {
-          return makeResponseEntity(GridItem.builder()
-                  .complaintNumber(complaintId)
-                  .errorMessage(exception.getMessage())
-                  .build());
-      }
-    }
-
     private ResponseEntity<LoginResponse> getLoginResponseForException(final Exception exception) {
+        var loginPageInfo = login();
         return makeResponseEntity(LoginResponse.builder()
                 .loginSuccess(false)
-                .errorMessage(exception.getMessage())
+                .errorMessage("Something went wrong while processing your request")
+                .sessionId(loginPageInfo.getBody().getSessionId())
+                .severId(loginPageInfo.getBody().getServerId())
+                .captchaImageUrl(loginPageInfo.getBody().getCaptchaImageUrl())
                 .build());
     }
 
@@ -175,7 +147,7 @@ public class InwarrantyDefectItemResourceV3 {
 
     private <T> ResponseEntity<T> makeResponseEntity(final T body) {
         MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.set("Access-Control-Allow-Origin", "https://absatish.github.io");
+        headers.set("Access-Control-Allow-Origin", "https://winter-citizen-328416.el.r.appspot.com");
         headers.set("Access-Control-Allow-Methods", "GET, POST");
         headers.set("Access-Control-Allow-Headers", "Content-Type");
         return new ResponseEntity<T>(body, headers, HttpStatus.OK.value());
