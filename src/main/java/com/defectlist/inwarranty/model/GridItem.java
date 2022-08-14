@@ -154,7 +154,7 @@ public class GridItem {
     }
 
     private GridItem(final GridItemBuilder gridItemBuilder) {
-        this.branchName = gridItemBuilder.serialNumber;
+        this.branchName = gridItemBuilder.branchName;
         this.complaintNumber = gridItemBuilder.complaintNumber;
         this.date = gridItemBuilder.date;
         this.product = gridItemBuilder.product;
