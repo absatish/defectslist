@@ -99,8 +99,10 @@ public class InwarrantyDefectItemResourceV3 {
     public ResponseEntity<GridItem> getGridItem3(@PathVariable("complaint-id") final String complaintId,
                                                  @RequestParam(name = "loggedInUser", required = false) final String loggedInUser) {
         try {
-            return makeResponseEntity(inwarrantyDefectItemService.getJobSheet(DefectivePartType.ARMATURE.name(),
-                    complaintId, loggedInUser));
+            final String resolvedComplaintId = complaintId.split(":")[0];
+            final DefectivePartType partType = DefectivePartType.valueOf(complaintId.split(":")[1]);
+            return makeResponseEntity(inwarrantyDefectItemService.getJobSheet(partType.getPartType(),
+                    resolvedComplaintId, loggedInUser));
         } catch (final Exception exception) {
             return makeResponseEntity(GridItem.builder()
                     .complaintNumber(complaintId)
