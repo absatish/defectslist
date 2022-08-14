@@ -191,6 +191,11 @@ public class InwarrantyDefectItemServiceV3 {
         LOGGER.info("Found jobsheet, complaintId : {}, tryCount : {}", complaintId, tryCount);
         final GridItem gridItem = gridItemFactory.buildGridItem(complaintId, spareName, response, loggedInUserName);
         if (!validGridItem(gridItem) && tryCount < MAX_TRY_COUNT) {
+            try {
+                Thread.sleep(30);
+            } catch (final InterruptedException interruptedException) {
+                LOGGER.error("error while retry");
+            }
             return getJobSheet(spareName, complaintId, tryCount + 1, loggedInUserName);
         }
         if (validGridItem(gridItem)) {
@@ -225,7 +230,7 @@ public class InwarrantyDefectItemServiceV3 {
             if (localLineCount == 6 && started) {
                 final DefectivePartType partType = resolvePartType(line);
                 if (!partType.equals(DefectivePartType.OTHER) || includeOther) {
-                    callIds.add(tempCallId);
+                    callIds.add(tempCallId + ":" + partType);
                 }
                 tempCallId = "";
                 localLineCount = -1;

@@ -14,6 +14,8 @@ public class LoginResponse {
 
     private final List<String> complaintIds;
 
+    private final List<DefectivePartType> partTypes;
+
     private final int size;
 
     private final String errorMessage;
