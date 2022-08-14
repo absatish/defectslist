@@ -32,6 +32,10 @@ public class GridItem {
         return this.errorMessage;
     }
 
+    public String getBranchName() {
+        return this.branchName;
+    }
+
     public String getDate() {
         return this.date;
     }
