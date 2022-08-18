@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @Component
 public class UIFactory {
 
-
     public static String getFirstPageV3() {
         return "<html>" +
                 "<title>Login Page</title>" +
