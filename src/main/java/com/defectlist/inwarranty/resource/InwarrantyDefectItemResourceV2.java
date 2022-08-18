@@ -52,7 +52,7 @@ public class InwarrantyDefectItemResourceV2 {
 
     @GetMapping
     public String firstPage() {
-        return UIFactory.getFirstPage();
+        return UIFactory.getFirstPageV3();
     }
 
     @GetMapping("/login")
