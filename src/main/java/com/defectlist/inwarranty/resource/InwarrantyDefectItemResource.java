@@ -53,8 +53,8 @@ public class InwarrantyDefectItemResource {
 
     @GetMapping
     public String initialPage() {
-        return UIFactory.getFirstPage();
-//        return DEPRICATION_TEXT;
+//         return UIFactory.getFirstPage();
+       return DEPRICATION_TEXT;
 //        return inwarrantyDefectItemService.getPreload(Version.VERSION_1);
     }
 
