@@ -17,7 +17,6 @@ public class UIFactory {
     public static String getFirstPageV3() {
         return "<html>" +
                 "<title>Login Page</title>" +
-                "<meta http-equiv = \"refresh\" content = \"5; url = https://absatish.github.io/defectslist-ui\" />" +
                 "\t\t<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\">\n" +
                 "<style>" +
                 ".switch {\n" +
