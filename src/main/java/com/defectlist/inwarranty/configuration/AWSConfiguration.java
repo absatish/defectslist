@@ -2,6 +2,11 @@ package com.defectlist.inwarranty.configuration;
 
 import com.amazonaws.auth.*;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -31,6 +36,16 @@ public class AWSConfiguration {
                 .withCredentials(amazonAWSCredentials)
                 .withRegion(Regions.AP_SOUTH_1)
                 .build();
+    }
+
+    @Bean
+    @Autowired
+    public DynamoDBMapper amazonDynamoDBMapper(final AWSStaticCredentialsProvider awsStaticCredentialsProvider) {
+        AmazonDynamoDB amazonDynamoDBClientBuilder = AmazonDynamoDBClientBuilder.standard()
+                .withCredentials(awsStaticCredentialsProvider)
+                .withRegion(Regions.AP_SOUTH_1)
+                .build();
+        return new DynamoDBMapper(amazonDynamoDBClientBuilder);
     }
 
     @Bean
