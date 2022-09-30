@@ -38,8 +38,7 @@ public class InwarrantyDefectItemResource {
     private static final String UNKNOWN_ERROR = "<font color=red>Unknown error occurred. Please try again in few seconds.</font>" +
             "<br>";
 
-    private static final String DEPRICATION_TEXT = "<br><Br><center><font color=red size=5px>This page has been upgraded to version-2. Please click on the following link to get redirected<br><hr>ఈ పేజీ  నవీనీకరించబడింది.  దయచేసి ఈ క్రింది వెర్షన్ - 2 లింక్ క్లిక్ చేయగలరు" +
-            "<br><hr><a href=/app/v2/defects/>Version-2 Link</a></font></center>";
+    private static final String DEPRICATION_TEXT = UIFactory.redirectToLatestVersion(); //+ "<br><Br><center><font color=red size=5px>Redirecting to version-2 page.</center>";
 
     private final InwarrantyDefectItemService inwarrantyDefectItemService;
     private final EmailService emailService;

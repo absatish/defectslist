@@ -921,6 +921,37 @@ public class UIFactory {
         return webResponse;
     }
 
+    public static String redirectToLatestVersion() {
+        final String script =
+                "function startTimer() {\n" +
+                "    var presentTime1 = document.getElementById('timer').innerHTML;\n" +
+                "    var presentTime = presentTime1.split(' ')[5];\n" +
+                "    //var timeArray = presentTime.split(':');\n" +
+                "    var m = 0;//timeArray[0];\n" +
+                "    var s = checkSecond(presentTime - 1);\n" +
+                "    if(s==59){m=m-1}\n" +
+                "\n" +
+                "    document.getElementById('timer').innerHTML =\n" +
+                "     \"Redirecting to V2 Page in \" + s + \" Seconds\";\n" +
+                "    console.log(m)\n" +
+                "    // Check if the time is 0:00\n" +
+                "    if (s == 0 && m == 0) { return };\n" +
+                "    setTimeout(startTimer, 1000);\n" +
+                "  }" +
+                        "function checkSecond(sec) {\n" +
+                        "    if (sec < 10 && sec >= 0) {sec = \"0\" + sec}; // add zero in front of numbers < 10\n" +
+                        "    if (sec < 0) {sec = \"59\"};\n" +
+                        "    return sec;\n" +
+                        "  }";
+        return "<html>" +
+                "<title>Login Page</title>" +
+                "<meta http-equiv = \"refresh\" content = \"10; url = /app/v2/defects\" />" +
+                "\t\t<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\">\n" +
+                "<head><script type=text/javascript>" + script + "</script></head>" +
+                "<body onload=javascript:startTimer()><br><br><br><br><br>" +
+                "<center><font size=15px color=red><p id=timer>Redirecting to V2 Page in 11 Seconds</p> </font></center>";
+    }
+
     private String getGridItemHeader(final int size) {
         return "<html><title>Print</title><head>" +
                 "<style type=text/css>td{font-size:12px;}\n.innertable{height:300px;width:300px;}</style>" +
