@@ -505,10 +505,10 @@ public class UIFactory {
                 "  background-color: #04AA6D;\n" +
                 "  color: white;\n" +
                 "  padding: 14px 20px;\n" +
-                "  margin: 8px 40%;\n" +
+                "  margin: 8px 0;\n" +
                 "  border: none;\n" +
                 "  cursor: pointer;\n" +
-                "  width: 20%;\n" +
+                "  width: 100%;\n" +
                 "}\n" +
                 "\n" +
                 "button:hover {\n" +
