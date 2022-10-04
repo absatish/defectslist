@@ -52,7 +52,7 @@ public class InwarrantyDefectItemResourceV2 {
 
     @GetMapping
     public String firstPage() {
-        return UIFactory.getFirstPageV3();
+        return UIFactory.getFirstPageV4();
     }
 
     @GetMapping("/login")
@@ -107,11 +107,13 @@ public class InwarrantyDefectItemResourceV2 {
 
     private String initialPage(final String userId) {
         try {
-            String initialPage = inwarrantyDefectItemService.getPreload(Version.VERSION_1);
+            String initialPage = inwarrantyDefectItemService.getPreload(Version.VERSION_2);
             return initialPage.replaceAll("id=\"username\" name=\"username\"",
                     "id=\"username\" name=\"username\" readonly value=" + userId + " ")
                     .replaceAll("placeholder=username type=text id=username name=username",
-                            "placeholder=username  readonly type=text id=username name=username value=" + userId + " ");
+                            "placeholder=username  readonly type=text id=username name=username value=" + userId + " ")
+                    .replaceAll("<input type=\"text\" placeholder=\"Enter Username\" name=\"username\" required>",
+                            "<input type=\"text\" readonly placeholder=\"Enter Username\" name=\"username\" required value=" + userId + ">");
         } catch (final Exception exception) {
             return Banners.getMessageBanner(MessageType.ERROR, exception.getMessage());
         }

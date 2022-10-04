@@ -156,7 +156,7 @@ public class InwarrantyDefectItemService {
         if (Version.VERSION_1.equals(version)) {
             return uiFactory.getLoginPage(jSessionId, serverId, url);
         }
-        return uiFactory.getLoginPageV3(jSessionId, serverId, url);
+        return uiFactory.getLoginPageV4(jSessionId, serverId, url);
     }
 
     public GridItem getJobSheet(final String spareName, final String complaintId, final String loggedInUserName) {
