@@ -357,11 +357,11 @@ public class UIFactory {
                         "  }";
         return "<html>" +
                 "<title>Login Page</title>" +
-                "<meta http-equiv = \"refresh\" content = \"10; url = /app/v2/defects\" />" +
+                "<meta http-equiv = \"refresh\" content = \"3; url = /app/v2/defects\" />" +
                 "\t\t<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\">\n" +
                 "<head><script type=text/javascript>" + script + "</script></head>" +
                 "<body onload=javascript:startTimer()><br><br><br><br><br>" +
-                "<center><font size=15px color=red><p id=timer>Redirecting to V2 Page in 11 Seconds</p> </font></center>";
+                "<center><font size=15px color=red><p id=timer>Redirecting to V2 Page in 4 Seconds</p> </font></center>";
     }
 
     private String getGridItemHeader(final int size) {
