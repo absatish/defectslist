@@ -132,7 +132,7 @@ public class InwarrantyDefectItemResourceV2 {
                 RequestParameterResolver.getValue(requestParams, SERVER_NAME),
                 RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER).equalsIgnoreCase(ON),
                 RequestParameterResolver.getValue(requestParams, SHOW_ONLY_NUMBERS).equalsIgnoreCase(ON),
-                Version.VERSION_1);
+                Version.VERSION_2);
     }
 
     private String getInvalidLoginRequestResponse(final InvalidLoginRequestException invalidLoginRequestException) {

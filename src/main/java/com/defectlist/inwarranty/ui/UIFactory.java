@@ -35,6 +35,7 @@ public class UIFactory {
                         "</script>" +
                 "   </head>" +
                 "   <body>" +
+                "       <h2>Login Page</h2>\n" +
                 "       <form name='billGenerator' id='billGenerator' method='POST' action='/app/v2/defects/login'>\n" +
                 "       <div class=\"imgcontainer\">\n" +
                 "       <img src=\"https://www.w3schools.com/howto/img_avatar2.png\" alt=\"Avatar\" class=\"avatar\">\n" +
@@ -50,7 +51,7 @@ public class UIFactory {
                 "       <input type=\"hidden\" name=\"server\" value=\"" + serverId + "\">\n" +
                 "       <br>\n" +
                 "       <label>\n" +
-                "           <input type=\"checkbox\" checked=\"checked\" name=\"includeOthers\"> Include Other Complaints\n" +
+                "           <input type=\"checkbox\" checked=\"checked\" name=\"includeOther\"> Include Other Complaints\n" +
                 "       </label>\n" +
                 "       <br>\n" +
                 "       <button type=\"submit\">Login</button>\n" +
@@ -82,6 +83,7 @@ public class UIFactory {
                 "</script>" +
                 "   </head>" +
                 "   <body>" +
+                "       <h2>Login Page</h2>\n" +
                 "       <form name='billGenerator' id='billGenerator' method='POST' action='/app/v2/defects/prelogin'>\n" +
                 "       <div class=\"imgcontainer\">\n" +
                 "       <img src=\"https://www.w3schools.com/howto/img_avatar2.png\" alt=\"Avatar\" class=\"avatar\">\n" +
