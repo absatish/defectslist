@@ -20,40 +20,59 @@ public class UIFactory {
                 getHeaderV4() +
                         "<script type=text/javascript>" +
                         "function validate() {" +
+                        "var userPrompt = true;" +
                         "if (document.getElementById('username').value==''){" +
                         "alert('Please enter username');" +
                         "document.getElementById('username').focus();" +
+                        "userPrompt=false;" +
                         "} else if (document.getElementById('password').value==''){" +
                         "alert('Please enter password');" +
                         "document.getElementById('password').focus();" +
+                        "userPrompt=false;" +
                         "} else if (document.getElementById('captcha').value==''){" +
                         "alert('Please enter captcha');" +
                         "document.getElementById('captcha').focus();" +
-                        "} else {" +
-                        "document.getElementById('billGenerator').submit();" +
-                        "}}" +
+                        "userPrompt=false;" +
+                        "} else if (document.getElementById('showOnlyNumbers').checked){" +
+                        "     userPrompt = confirm('Do you want to see only complaintIds? Are you sure?');" +
+                        "} " +
+                        "return userPrompt;       \n}" +
                         "</script>" +
                 "   </head>" +
                 "   <body>" +
                 "       <h2>Login Page</h2>\n" +
-                "       <form name='billGenerator' id='billGenerator' method='POST' action='/app/v2/defects/login'>\n" +
+                "       <form name='billGenerator' id='billGenerator' method='POST' onsubmit=\"return validate();\" action='/app/v2/defects/login'>\n" +
                 "       <div class=\"imgcontainer\">\n" +
                 "       <img src=\"https://www.w3schools.com/howto/img_avatar2.png\" alt=\"Avatar\" class=\"avatar\">\n" +
                 "       </div>\n" +
                 "       <div class=\"container\">\n" +
                 "       <label for=\"username\"><b>Username</b></label>\n" +
-                "       <input type=\"text\" placeholder=\"Enter Username\" name=\"username\" required>\n" +
+                "       <input id=\"username\" type=\"text\" placeholder=\"Enter Username\" name=\"username\" required>\n" +
                 "       <label for=\"password\"><b>Password</b></label>\n" +
-                "       <input type=\"password\" placeholder=\"Enter Password\" name=\"password\" required>\n" +
-                "       <label for=\"captcha\"><img src=\"" + captchaUrl + "\"></label>\n" +
-                "       <input type=\"number\" placeholder=\"Enter Captcha\" name=\"captcha\" required>\n" +
+                "       <input id=\"password\" type=\"password\" placeholder=\"Enter Password\" name=\"password\" required>\n" +
+                "       <label for=\"captcha\"><b>Captcha</b></label>\n" +
+                "       <table width=100%><tr><td><img src=\"" + captchaUrl + "\"></td>" +
+                "       <td width=95%><input id=\"captcha\" type=\"number\" placeholder=\"Enter Captcha code shown left side\" name=\"captcha\" required></td></tr></table>\n" +
+                "       <label for=\"includeOther\"><b>Show 'Other' Complaints</b></label>\n" +
+                "       <div class=\"gender\">" +
+                "       <label>" +
+                "       <input type=\"radio\" value=\"on\" name=\"includeOther\" required><span>Yes</span>\n" +
+                "       </label>" +
+                "       <label>" +
+                "       <input type=\"radio\" value=\"off\" name=\"includeOther\" checked=\"checked\" required><span>No</span>\n" +
+                "       </label>" +
+                "       </div>" +
+                "       <label for=\"showOnlyNumbers\"><b>Show Only Complaint Ids</b></label>\n" +
+                "       <div class=\"gender\">" +
+                "       <label>" +
+                "       <input id=\"showOnlyNumbers\" type=\"radio\" value=\"on\" name=\"showOnlyNumbers\" required><span>Yes</span>\n" +
+                "       </label>" +
+                "       <label>" +
+                "       <input type=\"radio\" value=\"off\" name=\"showOnlyNumbers\" checked=\"checked\" required><span>No</span>\n" +
+                "       </label>" +
+                "       </div>" +
                 "       <input type=\"hidden\" name=\"id\" value=\"" + jSessionId + "\">\n" +
                 "       <input type=\"hidden\" name=\"server\" value=\"" + serverId + "\">\n" +
-                "       <br>\n" +
-                "       <label>\n" +
-                "           <input type=\"checkbox\" checked=\"checked\" name=\"includeOther\"> Include Other Complaints\n" +
-                "       </label>\n" +
-                "       <br>\n" +
                 "       <button type=\"submit\">Login</button>\n" +
                 "       </div>\n" +
                 "       </form>" +
@@ -494,6 +513,63 @@ public class UIFactory {
                 "body {font-family: Arial, Helvetica, sans-serif;}\n" +
                 "form {border: 3px solid #f1f1f1;}\n" +
                 "\n" +
+                ".gender{\n" +
+                "  font-family: Arial;\n" +
+                "  display: flex;\n" +
+                "  flex-wrap: wrap;\n" +
+                "  width: 100%;\n" +
+                "}\n" +
+                ".gender label{\n" +
+                "  position: relative;\n" +
+                "  margin: 4px 15px 4px 0;\n" +
+                "  display: inline-flex;\n" +
+                "  justify-content: center;\n" +
+                "  align-items: center;\n" +
+                "  cursor: pointer;\n" +
+                "}\n" +
+                ".gender input{\n" +
+                "  opacity: 0;\n" +
+                "  position: absolute;\n" +
+                "  left: 0;\n" +
+                "  top: 0;\n" +
+                "}\n" +
+                ".gender label span{\n" +
+                "  display: block;\n" +
+                "  text-align: center;\n" +
+                "  width: 100%;\n" +
+                "  background: #fff;\n" +
+                "  border: 1px solid #ccc;\n" +
+                "  color: #bababa;\n" +
+                "  font-size: 14px;\n" +
+                "  border-radius: 4px;\n" +
+                "  padding: 10px 20px;\n" +
+                "  min-width: 70px;\n" +
+                "  transition: 350ms;\n" +
+                "}\n" +
+                ".gender label:hover span, .gender label:hover span:before{\n" +
+                "  border: 1px solid #777;\n" +
+                "  color: #777;\n" +
+                "}\n" +
+                ".gender label span:before{\n" +
+                "  content: '';\n" +
+                "  position: absolute;\n" +
+                "  width: 12px;\n" +
+                "  height: 12px;\n" +
+                "  border-radius: 50%;\n" +
+                "  top: 50%;\n" +
+                "  margin-top: -7px;\n" +
+                "  left: 10px;\n" +
+                "  border: 1px solid #ccc;\n" +
+                "  transition: 500ms;\n" +
+                "}\n" +
+                ".gender input:checked ~ span{\n" +
+                "  color: blue;\n" +
+                "  border: 1px solid blue;\n" +
+                "}\n" +
+                ".gender label input:checked ~ span:before{\n" +
+                "  background: blue;\n" +
+                "  border: 1px solid blue;\n" +
+                "}" +
                 "input[type=text], input[type=password], input[type=number]{\n" +
                 "  width: 100%;\n" +
                 "  padding: 12px 20px;\n" +
@@ -530,9 +606,16 @@ public class UIFactory {
                 "\n" +
                 "img.avatar {\n" +
                 "  width: 15%;\n" +
-                "  height: 15%;\n" +
+                "  height: 10%;\n" +
                 "  border-radius: 50%;\n" +
                 "}\n" +
+                "@media screen and (min-width: 768px) { " +
+                "img.avatar {\n" +
+                "  width: 15%;\n" +
+                "  height: 20%;\n" +
+                "  border-radius: 50%;\n" +
+                "}\n" +
+                "}" +
                 "\n" +
                 ".container {\n" +
                 "  padding: 16px;\n" +
