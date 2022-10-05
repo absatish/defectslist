@@ -112,8 +112,8 @@ public class InwarrantyDefectItemResourceV2 {
                     "id=\"username\" name=\"username\" readonly value=" + userId + " ")
                     .replaceAll("placeholder=username type=text id=username name=username",
                             "placeholder=username  readonly type=text id=username name=username value=" + userId + " ")
-                    .replaceAll("<input type=\"text\" placeholder=\"Enter Username\" name=\"username\" required>",
-                            "<input type=\"text\" readonly placeholder=\"Enter Username\" name=\"username\" required value=" + userId + ">");
+                    .replaceAll("<input id=\"username\" type=\"text\" placeholder=\"Enter Username\" name=\"username\" required>",
+                            "<input id=\"username\" type=\"text\" readonly placeholder=\"Enter Username\" name=\"username\" required value=" + userId + ">");
         } catch (final Exception exception) {
             return Banners.getMessageBanner(MessageType.ERROR, exception.getMessage());
         }
