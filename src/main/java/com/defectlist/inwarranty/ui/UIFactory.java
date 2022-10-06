@@ -41,7 +41,13 @@ public class UIFactory {
                         "var captcha = [];\n" +
                         "var captchaValue = '';\n" +
                         "function next(n) {\n" +
-                        "   var length = document.getElementById('captcha' + (n-1)).value.length;\n" +
+                        "    var length = document.getElementById('captcha' + (n-1)).value.length;\n" +
+                        "    var key = event.keyCode || event.charCode;\n" +
+                        "    if( key == 8 || key == 46 ){\n" +
+                        "       if (length<=0 && n != 2) {\n" +
+                        "          document.getElementById('captcha' + (n-2)).focus();" +
+                        "       }\n" +
+                        "    }\n" +
                         "   if (length == 1) {\n" +
                         "       captcha[n-2] = document.getElementById('captcha' + (n-1)).value;\n" +
                         "   }\n" +
