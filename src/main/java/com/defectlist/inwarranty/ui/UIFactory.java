@@ -597,9 +597,17 @@ public class UIFactory {
                 "  background: blue;\n" +
                 "  border: 1px solid blue;\n" +
                 "}" +
-                "input[type=text], input[type=password], input[type=number]{\n" +
+                "input[type=text], input[type=password]{\n" +
                 "  width: 100%;\n" +
                 "  padding: 12px 20px;\n" +
+                "  margin: 8px 0;\n" +
+                "  display: inline-block;\n" +
+                "  border: 1px solid #ccc;\n" +
+                "  box-sizing: border-box;\n" +
+                "}\n" +
+                "input[type=number]{\n" +
+                "  width: 100%;\n" +
+                "  padding: 12px 10px;\n" +
                 "  margin: 8px 0;\n" +
                 "  display: inline-block;\n" +
                 "  border: 1px solid #ccc;\n" +
