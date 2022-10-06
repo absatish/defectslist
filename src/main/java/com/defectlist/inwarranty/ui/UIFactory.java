@@ -19,24 +19,45 @@ public class UIFactory {
                 "       <title>Defectives List Login Page</title>" +
                 getHeaderV4() +
                         "<script type=text/javascript>" +
-                        "function validate() {" +
-                        "var userPrompt = true;" +
-                        "if (document.getElementById('username').value==''){" +
-                        "alert('Please enter username');" +
-                        "document.getElementById('username').focus();" +
-                        "userPrompt=false;" +
-                        "} else if (document.getElementById('password').value==''){" +
-                        "alert('Please enter password');" +
-                        "document.getElementById('password').focus();" +
-                        "userPrompt=false;" +
-                        "} else if (document.getElementById('captcha').value==''){" +
-                        "alert('Please enter captcha');" +
-                        "document.getElementById('captcha').focus();" +
-                        "userPrompt=false;" +
-                        "} else if (document.getElementById('showOnlyNumbers').checked){" +
-                        "     userPrompt = confirm('Do you want to see only complaintIds? Are you sure?');" +
+                        "function validate() {\n" +
+                        "var userPrompt = true;\n" +
+                        "if (document.getElementById('username').value=='') { \n" +
+                        "       alert('Please enter username');\n" +
+                        "       document.getElementById('username').focus();\n" +
+                        "       userPrompt=false;\n" +
+                        "} else if (document.getElementById('password').value=='') { \n" +
+                        "       alert('Please enter password');\n" +
+                        "       document.getElementById('password').focus();\n" +
+                        "       userPrompt=false;\n" +
+                        "} else if (document.getElementById('captcha').value=='') { \n" +
+                        "       alert('Please enter captcha');\n" +
+                        "       document.getElementById('captcha').focus();\n" +
+                        "       userPrompt=false;\n" +
+                        "} else if (document.getElementById('showOnlyNumbers').checked) { \n" +
+                        "     userPrompt = confirm('Do you want to see only complaintIds? Are you sure?');\n" +
                         "} " +
-                        "return userPrompt;       \n}" +
+                        "return userPrompt;       \n" +
+                        "}\n" +
+                        "var captcha = [];\n" +
+                        "var captchaValue = '';\n" +
+                        "function next(n) {\n" +
+                        "   var length = document.getElementById('captcha' + (n-1)).value.length;\n" +
+                        "   if (length == 1) {\n" +
+                        "       captcha[n-2] = document.getElementById('captcha' + (n-1)).value;\n" +
+                        "   }\n" +
+                        "\n" +
+                        "captchaValue = '';\n" +
+                        "captcha.forEach(prepareCaptcha);\n" +
+                        "   document.getElementById('captcha').value =  captchaValue;\n" +
+                        "   if (n!=5 && length == 1) {\n" +
+                        "       document.getElementById('captcha'+n).focus();\n" +
+                        "   } else if (length > 1) {\n" +
+                        "       document.getElementById('captcha'+(n-1)).value = '';\n" +
+                        "   }\n" +
+                        "}\n" +
+                        "function prepareCaptcha(v) {\n" +
+                        "   captchaValue += v + '';\n" +
+                        "\n}       " +
                         "</script>" +
                 "   </head>" +
                 "   <body>" +
@@ -51,8 +72,13 @@ public class UIFactory {
                 "       <label for=\"password\"><b>Password</b></label>\n" +
                 "       <input id=\"password\" type=\"password\" placeholder=\"Enter Password\" name=\"password\" required>\n" +
                 "       <label for=\"captcha\"><b>Captcha</b></label>\n" +
-                "       <table width=100%><tr><td><img src=\"" + captchaUrl + "\"></td>" +
-                "       <td width=95%><input id=\"captcha\" type=\"number\" placeholder=\"Enter Captcha code shown left side\" name=\"captcha\" required></td></tr></table>\n" +
+                "       <table width=100%><tr>" +
+                "           <td><img src=\"" + captchaUrl + "\"></td>" +
+                "           <td width=24%><input onkeyup=\"next(2)\" max=\"9\" min=\"0\" type=\"number\" name=\"captcha1\" id=\"captcha1\" required></td>" +
+                "           <td width=24%><input onkeyup=\"next(3)\" max=\"9\" min=\"0\" type=\"number\" name=\"captcha2\" id=\"captcha2\" required></td>" +
+                "           <td width=24%><input onkeyup=\"next(4)\" max=\"9\" min=\"0\" type=\"number\" name=\"captcha3\" id=\"captcha3\" required></td>" +
+                "           <td width=24%><input onkeyup=\"next(5)\" max=\"9\" min=\"0\" type=\"number\" name=\"captcha4\" id=\"captcha4\" required></td>" +
+                "       </tr></table>\n" +
                 "       <label for=\"includeOther\"><b>Show 'Other' Complaints</b></label>\n" +
                 "       <div class=\"gender\">" +
                 "       <label>" +
@@ -72,6 +98,7 @@ public class UIFactory {
                 "       </label>" +
                 "       </div>" +
                 "       <input type=\"hidden\" name=\"id\" value=\"" + jSessionId + "\">\n" +
+                "       <input type=\"hidden\" id=\"captcha\" name=\"captcha\">\n" +
                 "       <input type=\"hidden\" name=\"server\" value=\"" + serverId + "\">\n" +
                 "       <button type=\"submit\">Login</button>\n" +
                 "       </div>\n" +
