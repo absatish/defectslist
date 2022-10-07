@@ -18,53 +18,53 @@ public class UIFactory {
                 "   <head>" +
                 "       <title>Defectives List Login Page</title>" +
                 getHeaderV4() +
-                        "<script type=text/javascript>" +
-                        "function validate() {\n" +
-                        "var userPrompt = true;\n" +
-                        "if (document.getElementById('username').value=='') { \n" +
-                        "       alert('Please enter username');\n" +
-                        "       document.getElementById('username').focus();\n" +
-                        "       userPrompt=false;\n" +
-                        "} else if (document.getElementById('password').value=='') { \n" +
-                        "       alert('Please enter password');\n" +
-                        "       document.getElementById('password').focus();\n" +
-                        "       userPrompt=false;\n" +
-                        "} else if (document.getElementById('captcha').value=='') { \n" +
-                        "       alert('Please enter captcha');\n" +
-                        "       document.getElementById('captcha').focus();\n" +
-                        "       userPrompt=false;\n" +
-                        "} else if (document.getElementById('showOnlyNumbers').checked) { \n" +
-                        "     userPrompt = confirm('Do you want to see only complaintIds? Are you sure?');\n" +
-                        "} " +
-                        "return userPrompt;       \n" +
-                        "}\n" +
-                        "var captcha = [];\n" +
-                        "var captchaValue = '';\n" +
-                        "function next(n) {\n" +
-                        "    var length = document.getElementById('captcha' + (n-1)).value.length;\n" +
-                        "    var key = event.keyCode || event.charCode;\n" +
-                        "    if( key == 8 || key == 46 ){\n" +
-                        "       if (length<=0 && n != 2) {\n" +
-                        "          document.getElementById('captcha' + (n-2)).focus();" +
-                        "       }\n" +
-                        "    }\n" +
-                        "   if (length == 1) {\n" +
-                        "       captcha[n-2] = document.getElementById('captcha' + (n-1)).value;\n" +
-                        "   }\n" +
-                        "\n" +
-                        "captchaValue = '';\n" +
-                        "captcha.forEach(prepareCaptcha);\n" +
-                        "   document.getElementById('captcha').value =  captchaValue;\n" +
-                        "   if (n!=5 && length == 1) {\n" +
-                        "       document.getElementById('captcha'+n).focus();\n" +
-                        "   } else if (length > 1) {\n" +
-                        "       document.getElementById('captcha'+(n-1)).value = '';\n" +
-                        "   }\n" +
-                        "}\n" +
-                        "function prepareCaptcha(v) {\n" +
-                        "   captchaValue += v + '';\n" +
-                        "\n}       " +
-                        "</script>" +
+                "<script type=text/javascript>" +
+                "function validate() {\n" +
+                "   var userPrompt = true;\n" +
+                "   if (document.getElementById('username').value=='') { \n" +
+                "          alert('Please enter username');\n" +
+                "          document.getElementById('username').focus();\n" +
+                "          userPrompt=false;\n" +
+                "   } else if (document.getElementById('password').value=='') { \n" +
+                "          alert('Please enter password');\n" +
+                "          document.getElementById('password').focus();\n" +
+                "          userPrompt=false;\n" +
+                "   } else if (document.getElementById('captcha').value=='') { \n" +
+                "          alert('Please enter captcha');\n" +
+                "          document.getElementById('captcha').focus();\n" +
+                "          userPrompt=false;\n" +
+                "   } else if (document.getElementById('showOnlyNumbers').checked) { \n" +
+                "        userPrompt = confirm('Do you want to see only complaintIds? Are you sure?');\n" +
+                "   } " +
+                "   return userPrompt;       \n" +
+                "}\n" +
+                "var captcha = [];\n" +
+                "var captchaValue = '';\n" +
+                "function next(n) {\n" +
+                "    var length = document.getElementById('captcha' + (n-1)).value.length;\n" +
+                "    var key = event.keyCode || event.charCode;\n" +
+                "    if( key == 8 || key == 46 ){\n" +
+                "       if (length<=0 && n != 2) {\n" +
+                "          document.getElementById('captcha' + (n-2)).focus();" +
+                "       }\n" +
+                "    }\n" +
+                "   if (length == 1) {\n" +
+                "       captcha[n-2] = document.getElementById('captcha' + (n-1)).value;\n" +
+                "   }\n" +
+                "\n" +
+                "   captchaValue = '';\n" +
+                "   captcha.forEach(prepareCaptcha);\n" +
+                "   document.getElementById('captcha').value =  captchaValue;\n" +
+                "   if (n!=5 && length == 1) {\n" +
+                "       document.getElementById('captcha'+n).focus();\n" +
+                "   } else if (length > 1) {\n" +
+                "       document.getElementById('captcha'+(n-1)).value = '';\n" +
+                "   }\n" +
+                "}\n" +
+                "function prepareCaptcha(v) {\n" +
+                "   captchaValue += v + '';\n" +
+                "\n}       " +
+                "</script>" +
                 "   </head>" +
                 "   <body>" +
                 "       <h2>Login Page</h2>\n" +
