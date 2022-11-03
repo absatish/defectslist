@@ -1,14 +1,11 @@
 package com.defectlist.inwarranty.resource;
 
-import com.defectlist.inwarranty.FinanceTrackerService;
-import com.defectlist.inwarranty.LoginDetailsValidator;
+import com.defectlist.inwarranty.utils.LoginDetailsValidator;
 import com.defectlist.inwarranty.ui.TrackerUIPage;
-import com.defectlist.inwarranty.utils.MonthUtils;
 import com.defectlist.inwarranty.utils.RequestParameterResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -17,16 +14,12 @@ public class FinanceTrackerResource {
 
     private static final String USERNAME = "username";
     private static final String PIN = "pin";
-    private static final String MONTH = "month";
 
     private final LoginDetailsValidator loginDetailsValidator;
-    private final FinanceTrackerService financeTrackerService;
 
     @Autowired
-    public FinanceTrackerResource(final LoginDetailsValidator loginDetailsValidator,
-                                  final FinanceTrackerService financeTrackerService) {
+    public FinanceTrackerResource(final LoginDetailsValidator loginDetailsValidator) {
         this.loginDetailsValidator = loginDetailsValidator;
-        this.financeTrackerService = financeTrackerService;
     }
 
     @GetMapping
@@ -46,23 +39,9 @@ public class FinanceTrackerResource {
         if (loginDetailsValidator.validate(userName, Long.valueOf(pin))) {
             String linkForEdit = "https://1drv.ms/x/s!AkwTrWiwMYx1zRtCikD7wcb5g2PO?e=qAPUgT";
             String link = "https://onedrive.live.com/embed?cid=758C31B068AD134C&resid=758C31B068AD134C%219883&authkey=AL3I0I2TctMmsMA&em=2";
-            return "<a href='" + linkForEdit + "'>Edit Xls Sheet</a><iframe src=\"" + linkForEdit + "\" width=\"100%\" height=\"100%\" frameborder=\"0\" scrolling=\"no\"></iframe>";
-            /* final String month = MonthUtils.currentMonth();
-            return financeTrackerService.getFinanceTrackerDetails(month); */
+            return "<a href='" + linkForEdit + "'>Edit Xls Sheet</a><iframe src=\"" + link + "\" width=\"100%\" height=\"100%\" frameborder=\"0\" scrolling=\"no\"></iframe>";
         } else {
             return getLoginPage();
         }
     }
-
-    @PostMapping("/load")
-    public String loadMonthData(@RequestParam final Map<String, String> requestParams) {
-        final String month = RequestParameterResolver.getValue(requestParams, MONTH);
-        return financeTrackerService.getFinanceTrackerDetails(month);
-    }
-
-    @PostMapping("/create")
-    public String createRecord(@RequestParam final Map<String, String> requestParams) {
-        return financeTrackerService.create(requestParams);
-    }
-
 }

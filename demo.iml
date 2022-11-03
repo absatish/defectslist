@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_17">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -89,6 +89,6 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-context-support:5.3.18" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.22" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-ses:1.12.83" level="project" />
-    <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-dynamodb:1.12.298" level="project" />
+    <orderEntry type="library" name="Maven: org.aspectj:aspectjweaver:1.9.9.1" level="project" />
   </component>
 </module>

@@ -2,7 +2,6 @@ package com.defectlist.inwarranty.resource;
 
 import com.defectlist.inwarranty.InwarrantyDefectItemService;
 import com.defectlist.inwarranty.Version;
-import com.defectlist.inwarranty.email.EmailService;
 import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
 import com.defectlist.inwarranty.exception.NoDataFoundException;
 import com.defectlist.inwarranty.exception.ProhibitedUserTriedToLoginException;
@@ -41,13 +40,10 @@ public class InwarrantyDefectItemResourceV2 {
             "<br>";
 
     private final InwarrantyDefectItemService inwarrantyDefectItemService;
-    private final EmailService emailService;
 
     @Autowired
-    public InwarrantyDefectItemResourceV2(final InwarrantyDefectItemService inwarrantyDefectItemService,
-                                          final EmailService emailService) {
+    public InwarrantyDefectItemResourceV2(final InwarrantyDefectItemService inwarrantyDefectItemService) {
         this.inwarrantyDefectItemService = inwarrantyDefectItemService;
-        this.emailService = emailService;
     }
 
     @GetMapping
@@ -69,12 +65,11 @@ public class InwarrantyDefectItemResourceV2 {
 
         try {
             final LoginRequest loginRequest = buildLoginRequest(requestParams);
-            loginRequest.validateUsername();
+            inwarrantyDefectItemService.validateUsername(loginRequest);
             return initialPage(loginRequest.getUserId());
         } catch (final InvalidLoginRequestException invalidLoginRequestException) {
             return getInvalidLoginRequestResponse(invalidLoginRequestException);
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
-            emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
             return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
         } catch (final Exception exception) {
             return getUnknownExceptionResponse(exception);
@@ -85,7 +80,6 @@ public class InwarrantyDefectItemResourceV2 {
     public String login(@RequestParam final Map<String, String> requestParams) {
         try {
             final LoginRequest loginRequest = buildLoginRequest(requestParams);
-            validateLoginRequest(loginRequest);
             final String content;
             if (loginRequest.isShowOnlyNumbers()) {
                 content = inwarrantyDefectItemService.loginAndLoadBillNumbers(loginRequest);
@@ -98,7 +92,6 @@ public class InwarrantyDefectItemResourceV2 {
         } catch (final NoDataFoundException noDataFoundException) {
             return Banners.getMessageBanner(MessageType.INFO, noDataFoundException.getMessage());
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
-            emailService.sendEmail("Prohibited User tried to login", "user tried to login : " + requestParams);
             return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
         } catch (final Exception exception) {
             return getUnknownExceptionResponse(exception);
@@ -119,10 +112,6 @@ public class InwarrantyDefectItemResourceV2 {
         }
     }
 
-    private void validateLoginRequest(final LoginRequest loginRequest) throws InvalidLoginRequestException {
-        loginRequest.validate();
-    }
-
     private LoginRequest buildLoginRequest(final Map<String, String> requestParams) {
         return new LoginRequest("0",
                 RequestParameterResolver.getValue(requestParams, USERNAME),
@@ -132,7 +121,8 @@ public class InwarrantyDefectItemResourceV2 {
                 RequestParameterResolver.getValue(requestParams, SERVER_NAME),
                 RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER).equalsIgnoreCase(ON),
                 RequestParameterResolver.getValue(requestParams, SHOW_ONLY_NUMBERS).equalsIgnoreCase(ON),
-                Version.VERSION_2);
+                Version.VERSION_2,
+                null);
     }
 
     private String getInvalidLoginRequestResponse(final InvalidLoginRequestException invalidLoginRequestException) {
@@ -144,7 +134,6 @@ public class InwarrantyDefectItemResourceV2 {
                 .limit(20)
                 .map(StackTraceElement::toString)
                 .collect(Collectors.joining("<br>"));
-        emailService.sendEmail("Login failed", message);
         return Banners.getMessageBanner(MessageType.ERROR,
                 UNKNOWN_ERROR + exception.getMessage() + "<br><center><a href=/app/v1/defects>Go back</a></center>");
     }

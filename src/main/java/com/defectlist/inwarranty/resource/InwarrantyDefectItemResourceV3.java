@@ -11,7 +11,6 @@ import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
 import com.defectlist.inwarranty.model.LoginPageInfo;
 import com.defectlist.inwarranty.model.LoginResponse;
-import com.defectlist.inwarranty.ui.LineImage;
 import com.defectlist.inwarranty.utils.RequestParameterResolver;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.MalformedURLException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -124,7 +121,8 @@ public class InwarrantyDefectItemResourceV3 {
                 RequestParameterResolver.getValue(requestParams, SERVER_NAME),
                 RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER).equalsIgnoreCase(ON),
                 RequestParameterResolver.getValue(requestParams, SHOW_ONLY_NUMBERS).equalsIgnoreCase(ON),
-                Version.VERSION_2);
+                Version.VERSION_2,
+                null);
     }
 
     private ResponseEntity<LoginResponse> getLoginResponseForException(final Exception exception) {

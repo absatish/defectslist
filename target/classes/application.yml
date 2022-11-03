@@ -1,3 +1,5 @@
+server:
+  port: 8081
 servitium:
   butterfly:
     url-prefix: https://butterfly.servitiumcrm.com/butterfly/
