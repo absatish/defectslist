@@ -1,5 +1,9 @@
-package com.defectlist.inwarranty;
+package com.defectlist.inwarranty.utils;
 
+import com.defectlist.inwarranty.S3Service;
+import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
+import com.defectlist.inwarranty.exception.ProhibitedUserTriedToLoginException;
+import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +16,8 @@ public class LoginDetailsValidator {
     private static final String DEFAULT_USERNAME = "empty";
     private static final String PIN = "pin";
     private static final String DEFAULT_PIN = "0";
+
+    private static final String UNDEFINED = "undefined";
 
     private final S3Service s3Service;
 

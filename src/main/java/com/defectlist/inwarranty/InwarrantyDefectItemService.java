@@ -3,7 +3,7 @@ package com.defectlist.inwarranty;
 import com.amazonaws.HttpMethod;
 import com.defectlist.inwarranty.configuration.CacheType;
 import com.defectlist.inwarranty.connector.ServitiumCrmConnector;
-import com.defectlist.inwarranty.email.EmailService;
+import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
 import com.defectlist.inwarranty.exception.UnknownException;
 import com.defectlist.inwarranty.httprequestheaders.ContentRequest;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
@@ -11,9 +11,7 @@ import com.defectlist.inwarranty.httprequestheaders.LogoutRequest;
 import com.defectlist.inwarranty.model.CaptchaResponse;
 import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
-import com.defectlist.inwarranty.ui.Banners;
 import com.defectlist.inwarranty.ui.LineImage;
-import com.defectlist.inwarranty.ui.MessageType;
 import com.defectlist.inwarranty.ui.UIFactory;
 import com.defectlist.inwarranty.utils.ListUtils;
 import org.slf4j.Logger;
@@ -71,8 +69,6 @@ public class InwarrantyDefectItemService {
 
     private final boolean enableAsync;
 
-    private final EmailService emailService;
-
     @Autowired
     public InwarrantyDefectItemService(final ServitiumCrmConnector servitiumCrmConnector,
            final S3Service s3Service,
@@ -80,8 +76,7 @@ public class InwarrantyDefectItemService {
            @Value("${aws.s3.captcha-bucket}") final String bucketName,
            final UIFactory uiFactory,
            final GridItemFactory gridItemFactory,
-           @Value("${servitium.jobsheets.enable-async}") boolean enableAsync,
-           final EmailService emailService) {
+           @Value("${servitium.jobsheets.enable-async}") boolean enableAsync) {
         this.servitiumCrmConnector = servitiumCrmConnector;
         this.s3Service = s3Service;
         this.cacheService = cacheService;
@@ -89,16 +84,15 @@ public class InwarrantyDefectItemService {
         this.uiFactory = uiFactory;
         this.gridItemFactory = gridItemFactory;
         this.enableAsync = enableAsync;
-        this.emailService = emailService;
     }
 
-    public String login(final LoginRequest loginRequest) {
+    public String login(final LoginRequest loginRequest) throws InvalidLoginRequestException {
         if (HttpStatus.OK.equals(servitiumCrmConnector.login(loginRequest))) {
             final String loggedInUserName = WelcomeListFactory
                     .getLoggedInUserName(servitiumCrmConnector.getWelcomeList(loginRequest));
+            validate(loginRequest);
+            loginRequest.setLoggedInUserName(loggedInUserName);
             final String content = getCallIds(loginRequest, loggedInUserName);
-            emailService.sendEmail("Login Success - " + loggedInUserName, "<p>id : " + loginRequest.getUserId()
-                    + "User logged in successfully</p>");
             servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
             return content;
         } else {
@@ -106,13 +100,13 @@ public class InwarrantyDefectItemService {
         }
     }
 
-    public String loginAndLoadBillNumbers(final LoginRequest loginRequest) {
+    public String loginAndLoadBillNumbers(final LoginRequest loginRequest) throws InvalidLoginRequestException {
         if (HttpStatus.OK.equals(servitiumCrmConnector.login(loginRequest))) {
             final String loggedInUserName = WelcomeListFactory
                     .getLoggedInUserName(servitiumCrmConnector.getWelcomeList(loginRequest));
+            validate(loginRequest);
+            loginRequest.setLoggedInUserName(loggedInUserName);
             final String content = getOnlyCallIds(loginRequest, loggedInUserName);
-            emailService.sendEmail("Login Success - " + loggedInUserName, "<p>id : " + loginRequest.getUserId()
-                    + " : User logged in successfully</p><hr><p>Page : PageNumbers</p>---------- End of Mail -------");
             servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
             return content;
         } else {
@@ -121,7 +115,6 @@ public class InwarrantyDefectItemService {
     }
 
     public String getPreload(final Version version) {
-
 
         String jSessionId;
         String serverId;
@@ -153,9 +146,7 @@ public class InwarrantyDefectItemService {
             throw new UnknownException("Something went wrong..! Please try again after few minutes..! Reason : " + exception.getMessage());
         }
         final URL url = s3Service.generatePresignedUrl(bucketName, KEY_NAME, Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
-        if (Version.VERSION_1.equals(version)) {
-            return uiFactory.getLoginPage(jSessionId, serverId, url);
-        }
+
         return uiFactory.getLoginPageV4(jSessionId, serverId, url);
     }
 
@@ -173,6 +164,14 @@ public class InwarrantyDefectItemService {
         URL url = s3Service.generatePresignedUrl(bucketName, type.getName(), Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
         cacheService.put(CacheType.LINE_URL.getCacheName(), type.getName(), url);
         return url;
+    }
+
+    public void validateUsername(final LoginRequest loginRequest) throws InvalidLoginRequestException {
+        loginRequest.validateUsername();
+    }
+
+    public void validate(final LoginRequest loginRequest) throws InvalidLoginRequestException {
+        loginRequest.validate();
     }
 
     private GridItem getJobSheet(final String spareName, final String complaintId, final int tryCount,

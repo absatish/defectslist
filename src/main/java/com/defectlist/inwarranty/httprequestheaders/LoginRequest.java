@@ -4,46 +4,44 @@ import com.defectlist.inwarranty.Version;
 import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
 import com.defectlist.inwarranty.exception.ProhibitedUserTriedToLoginException;
 import lombok.*;
+import org.springframework.stereotype.Component;
 
-@Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class LoginRequest {
 
     private static final String UNDEFINED = "undefined";
 
-    public LoginRequest(final String mobile, final String userid, final String password, final String j_captcha_response,
-                        final String jSessionId, final String server, final boolean printOthers,
-                        final boolean showOnlyNumbers, final Version version) {
-        this.mobile = mobile;
-        this.userid = userid;
-        this.password = password;
-        this.j_captcha_response = j_captcha_response;
-        this.jSessionId = jSessionId;
-        this.server =server;
-        this.printOthers = printOthers;
-        this.showOnlyNumbers = showOnlyNumbers;
-        this.version = version;
-    }
-
-    private final String mobile;
+    private String mobile;
 
     private String userid;
 
-    private final String password;
+    private String password;
 
-    private final String j_captcha_response;
+    private String j_captcha_response;
 
-    private final String jSessionId;
+    private String jSessionId;
 
-    private final String server;
+    private String server;
 
-    private final boolean printOthers;
+    private boolean printOthers;
 
-    private final boolean showOnlyNumbers;
+    private boolean showOnlyNumbers;
 
-    private final Version version;
+    private Version version;
+
+    private String loggedInUserName;
 
     public String getUserId() {
+        return userid;
+    }
+
+    public void setUserid(final String userid) {
+        this.userid = userid;
+    }
+
+    public String getUserid() {
         return userid;
     }
 
@@ -79,12 +77,19 @@ public class LoginRequest {
         return version;
     }
 
+    public String getLoggedInUserName() {
+        return loggedInUserName;
+    }
+
+    public void setLoggedInUserName(final String loggedInUserName) {
+        this.loggedInUserName = loggedInUserName;
+    }
+
     public void validate() throws InvalidLoginRequestException {
         String errorMessage = "<script type=text/javascript>";
         final String originalText = "<script type=text/javascript>";
 
         validateUsername();
-
 
         if (UNDEFINED.equals(password) || password == null || password.isBlank() || password.isEmpty()) {
             errorMessage += "document.getElementById('error-password').innerHTML = '<font color=red size=1px>Password&nbsp;cannot&nbsp;be&nbsp;empty</font>';\n";
@@ -106,7 +111,7 @@ public class LoginRequest {
             userid = userid.replaceAll(" ", "");
         }
         if (!(UNDEFINED.equals(userid) || userid == null || userid.isBlank() || userid.isBlank()) && !("ASP8568".equalsIgnoreCase(userid) || "ASI7953".equalsIgnoreCase(userid))) {
-            throw new ProhibitedUserTriedToLoginException("No Content Available to show");
+            throw new ProhibitedUserTriedToLoginException("Dear " + userid + ", Something went wrong.");
         }
         if (!(errorMessage.equals(originalText))) {
             throw new InvalidLoginRequestException(errorMessage + "</script>");
