@@ -1,5 +1,6 @@
 package com.defectlist.inwarranty.connector;
 
+import com.defectlist.inwarranty.aop.EmailServiceEnabled;
 import com.defectlist.inwarranty.exception.NoDataFoundException;
 import com.defectlist.inwarranty.httprequestheaders.LogoutRequest;
 import com.defectlist.inwarranty.model.CaptchaResponse;
@@ -66,6 +67,7 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
     }
 
     @Override
+    @EmailServiceEnabled
     public HttpStatus login(final LoginRequest loginRequest) {
         final ResponseEntity<String> exchange = restOperations.exchange(
                 servitiumCrmUrlService.getLogon(),
@@ -77,6 +79,12 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
             return HttpStatus.OK;
         }
         LOGGER.info("Login request failed. Content : {}", exchange.getBody());
+        if (Objects.requireNonNull(exchange.getBody()).contains("Invalid Login Id or Password")) {
+            throw new RuntimeException("Invalid Login Id or Password");
+        }
+        if (Objects.requireNonNull(exchange.getBody()).contains("Invalid Captcha Code")) {
+            throw new RuntimeException("Invalid Captcha Code");
+        }
         return HttpStatus.UNAUTHORIZED;
     }
 

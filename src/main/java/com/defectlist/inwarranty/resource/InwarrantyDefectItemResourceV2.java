@@ -36,8 +36,7 @@ public class InwarrantyDefectItemResourceV2 {
     private static final String ON = "on";
     private static final String SHOW_ONLY_NUMBERS = "showOnlyNumbers";
 
-    private static final String UNKNOWN_ERROR = "Unknown error occurred. Please try again in few seconds" +
-            "<br>";
+    private static final String UNKNOWN_ERROR = "Error occurred. Reason : ";
 
     private final InwarrantyDefectItemService inwarrantyDefectItemService;
 
@@ -72,7 +71,7 @@ public class InwarrantyDefectItemResourceV2 {
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
             return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
         } catch (final Exception exception) {
-            return getUnknownExceptionResponse(exception);
+            return getUnknownExceptionResponse(exception) + firstPage();
         }
     }
 
@@ -94,7 +93,7 @@ public class InwarrantyDefectItemResourceV2 {
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
             return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
         } catch (final Exception exception) {
-            return getUnknownExceptionResponse(exception);
+            return getUnknownExceptionResponse(exception) + firstPage();
         }
     }
 
@@ -135,7 +134,7 @@ public class InwarrantyDefectItemResourceV2 {
                 .map(StackTraceElement::toString)
                 .collect(Collectors.joining("<br>"));
         return Banners.getMessageBanner(MessageType.ERROR,
-                UNKNOWN_ERROR + exception.getMessage() + "<br><center><a href=/app/v1/defects>Go back</a></center>");
+                UNKNOWN_ERROR + exception.getMessage());
     }
 
 }

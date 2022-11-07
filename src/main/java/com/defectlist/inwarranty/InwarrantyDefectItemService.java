@@ -1,6 +1,7 @@
 package com.defectlist.inwarranty;
 
 import com.amazonaws.HttpMethod;
+import com.defectlist.inwarranty.aop.EmailServiceEnabled;
 import com.defectlist.inwarranty.configuration.CacheType;
 import com.defectlist.inwarranty.connector.ServitiumCrmConnector;
 import com.defectlist.inwarranty.exception.InvalidLoginRequestException;
@@ -166,10 +167,12 @@ public class InwarrantyDefectItemService {
         return url;
     }
 
+    @EmailServiceEnabled
     public void validateUsername(final LoginRequest loginRequest) throws InvalidLoginRequestException {
         loginRequest.validateUsername();
     }
 
+    @EmailServiceEnabled
     public void validate(final LoginRequest loginRequest) throws InvalidLoginRequestException {
         loginRequest.validate();
     }

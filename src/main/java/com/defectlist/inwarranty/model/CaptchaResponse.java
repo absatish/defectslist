@@ -1,8 +1,5 @@
 package com.defectlist.inwarranty.model;
 
-import lombok.Builder;
-import lombok.Getter;
-
 import org.springframework.http.HttpHeaders;
 
 public class CaptchaResponse {

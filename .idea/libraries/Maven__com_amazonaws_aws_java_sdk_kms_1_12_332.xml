@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.amazonaws:aws-java-sdk-kms:1.12.332">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/amazonaws/aws-java-sdk-kms/1.12.332/aws-java-sdk-kms-1.12.332.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/amazonaws/aws-java-sdk-kms/1.12.332/aws-java-sdk-kms-1.12.332-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/amazonaws/aws-java-sdk-kms/1.12.332/aws-java-sdk-kms-1.12.332-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
