@@ -85,6 +85,18 @@ public class UIFactory {
                 "           <td width=24%><input onkeyup=\"next(4)\" max=\"9\" min=\"0\" type=\"number\" name=\"captcha3\" id=\"captcha3\" required></td>" +
                 "           <td width=24%><input onkeyup=\"next(5)\" max=\"9\" min=\"0\" type=\"number\" name=\"captcha4\" id=\"captcha4\" required></td>" +
                 "       </tr></table>\n" +
+
+                "       <label for=\"paginated\" width=500px><b><marquee>ఒకవేళ ఎక్కువ కాల్స్ ఉంటే, పేజి ఫాస్ట్ గా లోడ్ అవ్వడానికి ఈ క్రింది పేజీల వారీగా సెర్చ్ ఆన్ లో ఉంచండి. పేజీకి 12 కాల్ ఐడి లు వస్తాయి. " +
+                "        </marquee></b></label>\n" +
+                "       <div class=\"gender\">" +
+                "       <label>" +
+                "       <input type=\"radio\" value=\"on\" name=\"paginated\" checked=\"checked\" required><span>పేజీల వారీగా సెర్చ్ <font color=green>ఆన్</font> లో ఉంచండి</span>\n" +
+                "       </label>" +
+                "       <label>" +
+                "       <input type=\"radio\" value=\"off\" name=\"paginated\" required><span>పేజీల వారీగా సెర్చ్ <font color=red>ఆఫ్</font> లో ఉంచండి</span>\n" +
+                "       </label>" +
+                "       </div>" +
+
                 "       <label for=\"includeOther\"><b>Show 'Other' Complaints</b></label>\n" +
                 "       <div class=\"gender\">" +
                 "       <label>" +
@@ -94,6 +106,7 @@ public class UIFactory {
                 "       <input type=\"radio\" value=\"off\" name=\"includeOther\" checked=\"checked\" required><span>No</span>\n" +
                 "       </label>" +
                 "       </div>" +
+
                 "       <label for=\"showOnlyNumbers\"><b>Show Only Complaint Ids</b></label>\n" +
                 "       <div class=\"gender\">" +
                 "       <label>" +
@@ -149,6 +162,16 @@ public class UIFactory {
                 "       </form>" +
                 "   </body>" +
                 "</html>";
+    }
+
+    public String buildNextPageButton(final String nextCallIds, final String currentCallIds,
+                                      final String loggedInUserName, int currentPageNumber) {
+        return "<form method=POST action='/app/v2/defects/login/next'>" +
+                "<input type=hidden name='complaintIds' value='" + nextCallIds + "'>" +
+                "<input type=hidden name='loggedInUserName' value='" + loggedInUserName + "'>" +
+                "<input type=hidden name='pageNumber' value='" + (currentPageNumber + 1) + "'>" +
+                "<button type=submit name='NextPage'>Current Page (" + currentPageNumber++ + ") --->  Next Page (" + currentPageNumber + ")</button>" +
+                "</form>";
     }
 
     public String buildGridPage(final Map<String, List<GridItem>> gridItemsJson,

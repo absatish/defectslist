@@ -12,9 +12,7 @@ import com.defectlist.inwarranty.httprequestheaders.LogoutRequest;
 import com.defectlist.inwarranty.model.CaptchaResponse;
 import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
-import com.defectlist.inwarranty.ui.LineImage;
 import com.defectlist.inwarranty.ui.UIFactory;
-import com.defectlist.inwarranty.utils.ListUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,11 +21,11 @@ import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.defectlist.inwarranty.ui.LineImage.HORIZONTAL_LINE_IMAGE;
 import static com.defectlist.inwarranty.ui.LineImage.VERTICAL_LINE_IMAGE;
@@ -49,10 +47,6 @@ public class InwarrantyDefectItemService {
 
     private static final String KEY_NAME = "captcha.jpg";
 
-    private static final int PARTITION_SIZE = 3;
-    private static final int THREAD_POOL_SIZE = 5;
-
-    private static final int MAX_TRY_COUNT = 4;
 
     private static final String LINE_REGEX = "<input type='hidden' size='50' name = 'Call_Id";
 
@@ -66,25 +60,29 @@ public class InwarrantyDefectItemService {
 
     private final UIFactory uiFactory;
 
-    private final GridItemFactory gridItemFactory;
+    private final GridItemBuilderService gridItemBuilderService;
 
-    private final boolean enableAsync;
+    private final boolean enablePagination;
+
+    private final PaginatedInwarrantyDefectItemService paginatedInwarrantyDefectItemService;
 
     @Autowired
     public InwarrantyDefectItemService(final ServitiumCrmConnector servitiumCrmConnector,
-           final S3Service s3Service,
-           final CacheService cacheService,
-           @Value("${aws.s3.captcha-bucket}") final String bucketName,
-           final UIFactory uiFactory,
-           final GridItemFactory gridItemFactory,
-           @Value("${servitium.jobsheets.enable-async}") boolean enableAsync) {
+                                       final S3Service s3Service,
+                                       final CacheService cacheService,
+                                       @Value("${aws.s3.captcha-bucket}") final String bucketName,
+                                       final UIFactory uiFactory,
+                                       final GridItemBuilderService gridItemBuilderService,
+                                       @Value("${pagination.active}") final boolean enablePagination,
+                                       final PaginatedInwarrantyDefectItemService paginatedInwarrantyDefectItemService) {
         this.servitiumCrmConnector = servitiumCrmConnector;
         this.s3Service = s3Service;
         this.cacheService = cacheService;
         this.bucketName = bucketName;
         this.uiFactory = uiFactory;
-        this.gridItemFactory = gridItemFactory;
-        this.enableAsync = enableAsync;
+        this.gridItemBuilderService = gridItemBuilderService;
+        this.enablePagination = enablePagination;
+        this.paginatedInwarrantyDefectItemService = paginatedInwarrantyDefectItemService;
     }
 
     public String login(final LoginRequest loginRequest) throws InvalidLoginRequestException {
@@ -151,22 +149,6 @@ public class InwarrantyDefectItemService {
         return uiFactory.getLoginPageV4(jSessionId, serverId, url);
     }
 
-    public GridItem getJobSheet(final String spareName, final String complaintId, final String loggedInUserName) {
-        final Optional<GridItem> gridItemFromCache = cacheService.get(CacheType.GRID_ITEM.getCacheName(),
-                spareName + "-" + complaintId, GridItem.class);
-        return gridItemFromCache.orElseGet(() -> getJobSheet(spareName, complaintId, 1, loggedInUserName));
-    }
-
-    public URL generatePresignedUrl(final LineImage type) {
-        Optional<URL> urlFromCache = cacheService.get(CacheType.LINE_URL.getCacheName(), type.getName(), URL.class);
-        if (urlFromCache.isPresent()) {
-            return urlFromCache.get();
-        }
-        URL url = s3Service.generatePresignedUrl(bucketName, type.getName(), Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
-        cacheService.put(CacheType.LINE_URL.getCacheName(), type.getName(), url);
-        return url;
-    }
-
     @EmailServiceEnabled
     public void validateUsername(final LoginRequest loginRequest) throws InvalidLoginRequestException {
         loginRequest.validateUsername();
@@ -177,36 +159,20 @@ public class InwarrantyDefectItemService {
         loginRequest.validate();
     }
 
-    private GridItem getJobSheet(final String spareName, final String complaintId, final int tryCount,
-                                 final String loggedInUserName) {
-        LOGGER.info("Get jobsheet, complaintId : {}, tryCount : {}", complaintId, tryCount);
-        final String response = servitiumCrmConnector.getJobSheet(complaintId);
-        LOGGER.info("Found jobsheet, complaintId : {}, tryCount : {}", complaintId, tryCount);
-        final GridItem gridItem = gridItemFactory.buildGridItem(complaintId, spareName, response, loggedInUserName);
-        if (!validGridItem(gridItem) && tryCount < MAX_TRY_COUNT) {
-            return getJobSheet(spareName, complaintId, tryCount + 1, loggedInUserName);
-        }
-        if (validGridItem(gridItem)) {
-            cacheService.put(CacheType.GRID_ITEM.getCacheName(), spareName + "-" + complaintId, gridItem);
-        }
-        return gridItem;
-    }
-
-    private boolean validGridItem(final GridItem gridItem) {
-        return gridItem.getModel() != null && gridItem.getProduct() != null && gridItem.getSerialNumber() != null;
-    }
-
     private String getOnlyCallIds(final LoginRequest loginRequest, final String loggedInUserName) {
         final Map<String, String> callIds = loadCallIds(loginRequest);
-        final Map<String, List<GridItem>> gridItemsMap = buildGridItems(callIds, loggedInUserName);
-        final URL verticleImage = generatePresignedUrl(VERTICAL_LINE_IMAGE);
-        final URL horizontalImage = generatePresignedUrl(HORIZONTAL_LINE_IMAGE);
+        final Map<String, List<GridItem>> gridItemsMap = gridItemBuilderService.buildGridItems(callIds, loggedInUserName);
+        final URL verticleImage = gridItemBuilderService.generatePresignedUrl(VERTICAL_LINE_IMAGE);
+        final URL horizontalImage = gridItemBuilderService.generatePresignedUrl(HORIZONTAL_LINE_IMAGE);
         return uiFactory.buildGridPageWithBillNumbers(gridItemsMap, verticleImage, horizontalImage);
     }
 
     private String getCallIds(final LoginRequest loginRequest, final String loggedInUserName) {
         final Map<String, String> callIds = loadCallIds(loginRequest);
-        return getGridItems(callIds, loggedInUserName);
+        if (loginRequest.paginated()) {
+            return paginatedInwarrantyDefectItemService.getPaginatedGridItems(callIds, loggedInUserName, 0);
+        }
+        return gridItemBuilderService.getGridItems(callIds, loggedInUserName);
     }
 
     private Map<String, String> loadCallIds(final LoginRequest loginRequest) {
@@ -241,53 +207,6 @@ public class InwarrantyDefectItemService {
         return callIds;
     }
 
-    private String getGridItems(final Map<String, String> callIds, final String loggedInUserName) {
-        final Map<String, List<GridItem>> gridItemsMap = buildGridItems(callIds, loggedInUserName);
-        final URL verticleImage = s3Service
-                .generatePresignedUrl(bucketName, "cut-vertical.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
-        final URL horizontalImage = s3Service
-                .generatePresignedUrl(bucketName, "cut.jpg", Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
-        return uiFactory.buildGridPage(gridItemsMap, verticleImage, horizontalImage);
-    }
-
-    private Map<String, List<GridItem>> buildGridItems(final Map<String, String> callIds, final String loggedInUserName) {
-        final Map<String, List<GridItem>> gridItemsMap = new HashMap<>();
-
-        callIds.forEach((key, value) -> {
-            final List<String> complaintIds = Arrays.asList(value.split(DELIMITER_COMMA));
-            final List<GridItem> gridItems = enableAsync
-                    ? getJobSheetsAsync(complaintIds, key, loggedInUserName)
-                    : complaintIds.stream()
-                    .filter(complaintId -> complaintId.length() == 12)
-                    .map(complaintId -> getJobSheet(key, complaintId, loggedInUserName))
-                    .collect(Collectors.toList());
-            gridItemsMap.put(key, gridItems);
-        });
-
-        return gridItemsMap;
-    }
-
-    private List<GridItem> getJobSheetsAsync(final List<String> complaintIds, final String key, final String loggedInUserName) {
-        final List<List<String>> complaintIdPartitions = ListUtils.partition(complaintIds, Math.min(complaintIds.size(), PARTITION_SIZE));
-        final ExecutorService executorService = Executors.newFixedThreadPool(Math.min(complaintIdPartitions.size(), THREAD_POOL_SIZE));
-
-        final List<CompletableFuture<List<GridItem>>> gridItemsToBeFetched = complaintIdPartitions.stream()
-                .map(partition -> CompletableFuture.supplyAsync(
-                        () -> partition.stream()
-                                .filter(complaintId -> complaintId.length() == 12)
-                                .map(complaintId -> getJobSheet(key, complaintId, loggedInUserName))
-                                .collect(Collectors.toList()), executorService))
-                .collect(Collectors.toList());
-
-        final List<List<GridItem>> gridItemsPartitions = gridItemsToBeFetched.stream()
-                .map(CompletableFuture::join)
-                .collect(Collectors.toList());
-        executorService.shutdown();
-
-        return gridItemsPartitions.stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-    }
 
     private DefectivePartType resolvePartType(final String line) {
         final String typeFromLine = line.split("<input")[0]

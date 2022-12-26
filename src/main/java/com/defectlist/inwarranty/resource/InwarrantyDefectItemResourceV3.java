@@ -122,7 +122,8 @@ public class InwarrantyDefectItemResourceV3 {
                 RequestParameterResolver.getValue(requestParams, INCLUDE_OTHER).equalsIgnoreCase(ON),
                 RequestParameterResolver.getValue(requestParams, SHOW_ONLY_NUMBERS).equalsIgnoreCase(ON),
                 Version.VERSION_2,
-                null);
+                null,
+                false);
     }
 
     private ResponseEntity<LoginResponse> getLoginResponseForException(final Exception exception) {

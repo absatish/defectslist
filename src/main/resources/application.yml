@@ -17,3 +17,7 @@ aws:
 variables:
   button: MMXDDYMMZ771775776FFY336225WWXAAYCCZDDYJJYEEP226AAZIIYKKQAAL
   link: https://Y-DhD7u+7Lak-dcjj95@7NbmNng-SJZUnIl-XzxFE_sC21.com
+
+pagination:
+  active: true
+  max-items: 12

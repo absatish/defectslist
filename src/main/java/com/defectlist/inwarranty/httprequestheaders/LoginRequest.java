@@ -33,6 +33,8 @@ public class LoginRequest {
 
     private String loggedInUserName;
 
+    private boolean paginated;
+
     public String getUserId() {
         return userid;
     }
@@ -71,6 +73,10 @@ public class LoginRequest {
 
     public boolean includeOthers() {
         return printOthers;
+    }
+
+    public boolean paginated() {
+        return paginated;
     }
 
     public Version getVersion() {
