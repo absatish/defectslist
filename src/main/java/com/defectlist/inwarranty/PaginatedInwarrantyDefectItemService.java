@@ -54,7 +54,10 @@ public class PaginatedInwarrantyDefectItemService {
                         .collect(Collectors.toList());
                 final String complaintsListString;
 
-                final int desiredLength = Math.min(complaintIds.size(), maximumItemsPerPage);
+                int desiredLength = Math.min(complaintIds.size(), maximumItemsPerPage);
+                if (count.get() + desiredLength > maximumItemsPerPage) {
+                    desiredLength = maximumItemsPerPage - count.get();
+                }
                 complaintsListString = getSublist(complaintIds, 0, desiredLength);
                 count.set(count.get() + desiredLength);
                 callIds.put(key, getSublist(complaintIds, desiredLength, complaintIds.size()));
