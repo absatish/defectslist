@@ -9,6 +9,11 @@ import java.util.stream.Stream;
 public class GridItemFactory {
 
     private static final String DELIMITER_NEW_LINE = "\n";
+    private static final String PRODUCT = "Product";
+    private static final String SERIAL_NUMBER = "Serial No";
+    private static final String MODEL = "Model";
+    private static final String DOP = "DOP";
+
 
     public GridItem buildGridItem(final String complainId, final String spareName, final String htmlData,
                                   final String loggedInUserName) {
@@ -17,7 +22,7 @@ public class GridItemFactory {
         final GridItem.GridItemBuilder gridItemBuilder = GridItem.builder();
         Stream.iterate(0, lineNumber -> ++lineNumber)
                 .limit(lines.length)
-                .forEach(lineNumber -> buildRequiredInfo(lines[lineNumber], lineNumber, gridItemBuilder));
+                .forEach(lineNumber -> buildRequiredInfo(lines, lineNumber, gridItemBuilder));
         gridItemBuilder.branchName(loggedInUserName.contains("VIKRAM") ? "ELURU" : "");
         gridItemBuilder.actualFault("Shortage");
         gridItemBuilder.complaintNumber(complainId);
@@ -27,23 +32,49 @@ public class GridItemFactory {
         return gridItemBuilder.build();
     }
 
-    private void buildRequiredInfo(final String line, final int lineNumber, final GridItem.GridItemBuilder gridItemBuilder) {
-        final String modifiedLine = line
-                .replaceAll("<font size=\"1\">", "")
-                .replaceAll("\\t", "")
-                .replaceAll("</font>\\r", "");
-        switch (lineNumber) {
-            case 194:
-                gridItemBuilder.product(modifiedLine);
-                break;
-            case 208:
-                gridItemBuilder.model(modifiedLine);
-                break;
-            case 222:
-                gridItemBuilder.serialNumber(modifiedLine);
-                break;
-            case 236:
-                gridItemBuilder.dop(modifiedLine);
+    private void buildRequiredInfo(final String[] lines, final int lineNumber, final GridItem.GridItemBuilder gridItemBuilder) {
+        final String line = lines[lineNumber];
+        final String modifiedLine = modifyLine(line);
+        try {
+            switch (modifiedLine.trim()) {
+                case PRODUCT:
+                    gridItemBuilder.product(getAppropriateString(lines, lineNumber));
+                    break;
+                case MODEL:
+                    gridItemBuilder.model(getAppropriateString(lines, lineNumber));
+                    break;
+                case SERIAL_NUMBER:
+                    gridItemBuilder.serialNumber(getAppropriateString(lines, lineNumber));
+                    break;
+                case DOP:
+                    gridItemBuilder.dop(getAppropriateString(lines, lineNumber));
+                    break;
+            }
+        } catch (Exception exception) {
+            switch (lineNumber) {
+                case 312:
+                    gridItemBuilder.product(modifiedLine);
+                    break;
+                case 326:
+                    gridItemBuilder.model(modifiedLine);
+                    break;
+                case 342:
+                    gridItemBuilder.serialNumber(modifiedLine);
+                    break;
+                case 356:
+                    gridItemBuilder.dop(modifiedLine);
+            }
         }
+    }
+
+    private String modifyLine(String line) {
+        return line
+            .replaceAll("<font size=\"1\">", "")
+            .replaceAll("\\t", "")
+            .replaceAll("</font>\\r", "");
+    }
+
+    private String getAppropriateString(String[] lines, int lineNumber) {
+        return modifyLine(lines[lineNumber + 3]);
     }
 }
