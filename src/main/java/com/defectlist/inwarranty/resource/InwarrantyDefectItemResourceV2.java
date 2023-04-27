@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -128,6 +130,27 @@ public class InwarrantyDefectItemResourceV2 {
         }
     }
 
+    @GetMapping(path = "/grid-item")
+    public String getGridItems(@RequestParam final Map<String, String> requestParams) {
+        if (requestParams == null || requestParams.isEmpty() || requestParams.get("ids").isEmpty()) {
+            return getBannerForGridItemInput();
+        }
+        try {
+            final Map<String, String> complaintIds = new HashMap<>();
+            complaintIds.put("OTHER", requestParams.get("ids"));
+
+            final String content = paginatedInwarrantyDefectItemService.getPaginatedGridItems(complaintIds,
+                    requestParams.getOrDefault("name", "VIKRAM SIVA KUMAR"), 1);
+            return getBannerForGridItemInput() + content;
+        } catch (final NoDataFoundException noDataFoundException) {
+            return Banners.getMessageBanner(MessageType.INFO, noDataFoundException.getMessage());
+        } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
+            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
+        } catch (final Exception exception) {
+            return getUnknownExceptionResponse(exception) + firstPage();
+        }
+    }
+
     private String initialPage(final String userId) {
         try {
             String initialPage = inwarrantyDefectItemService.getPreload(Version.VERSION_2);
@@ -179,4 +202,13 @@ public class InwarrantyDefectItemResourceV2 {
                 UNKNOWN_ERROR + exception.getMessage());
     }
 
+    private String getBannerForGridItemInput() {
+        return Banners.getMessageBanner(MessageType.INFO,
+                "<center><form name=extras type=get>" +
+                        "Complaint Ids : <input class=input type=text name=ids> &nbsp;&nbsp;" +
+                        "Technician Name : <input type=text name=name>&nbsp;&nbsp;" +
+                        "Branch : <input type=text name=branch>&nbsp;&nbsp;&nbsp;" +
+                        "<input type=submit></form></center>",
+                false);
+    }
 }

@@ -2,7 +2,7 @@ package com.defectlist.inwarranty.ui;
 
 public class Banners {
 
-    public static String getMessageBanner(final MessageType messageType, final String message) {
+    public static String getMessageBanner(final MessageType messageType, final String message, final boolean closeButton) {
         return "" +
                 "<style>\n" +
                 ".alert {\n" +
@@ -37,20 +37,35 @@ public class Banners {
                 "<body>\n" +
                 "\n" +
                 "<div class=\"alert " + messageType + "\">\n" +
-                "  <span class=\"closebtn\">&times;</span>  \n" +
+                getCloseButton(closeButton) +
                 "  <strong>" + message + "</strong>\n" +
                 "</div>\n" +
-                "<script>\n" +
-                "var close = document.getElementsByClassName(\"closebtn\");\n" +
-                "var i;\n" +
-                "\n" +
-                "for (i = 0; i < close.length; i++) {\n" +
-                "  close[i].onclick = function(){\n" +
-                "    var div = this.parentElement;\n" +
-                "    div.style.opacity = \"0\";\n" +
-                "    setTimeout(function(){ div.style.display = \"none\"; }, 600);\n" +
-                "  }\n" +
-                "}\n" +
-                "</script>";
+                getCloseButtonScript(closeButton);
+    }
+
+    public static String getMessageBanner(final MessageType messageType, final String message) {
+        return getMessageBanner(messageType, message, true);
+    }
+
+    private static String getCloseButtonScript(final boolean closeButtonRequired) {
+        if (closeButtonRequired) {
+            return  "<script>\n" +
+                    "var close = document.getElementsByClassName(\"closebtn\");\n" +
+                    "var i;\n" +
+                    "\n" +
+                    "for (i = 0; i < close.length; i++) {\n" +
+                    "  close[i].onclick = function(){\n" +
+                    "    var div = this.parentElement;\n" +
+                    "    div.style.opacity = \"0\";\n" +
+                    "    setTimeout(function(){ div.style.display = \"none\"; }, 600);\n" +
+                    "  }\n" +
+                    "}\n" +
+                    "</script>";
+        }
+        return "";
+    }
+
+    private static String getCloseButton(final boolean closeButtonRequired) {
+        return closeButtonRequired ? "  <span class=\"closebtn\">&times;</span>  \n" : "";
     }
 }
