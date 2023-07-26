@@ -1,10 +1,18 @@
 server:
   port: 8081
+
+glen:
+  login-url: http://glenindia.org:9191/api/user/login
+  url-prefix: http://glenindia.org:9191/api/serviceCenterBooking/searchAssignServiceCenter?status=all&size=748&glenUserId=11354
 servitium:
   butterfly:
-    url-prefix: https://butterfly.servitiumcrm.com/butterfly/
+    query-allocation: "CALLIDFROM1=&fromid=&sysfromdate={DATE}&sysfromdate1={DAY}&sysfromdate2={MONTH}&sysfromdate3={YEAR}&fromdate1=&fromdate2=&fromdate3=&fromdate=&ALLOCATIONSTATUS=B&CALLIDTO1=&toid=&systodate={DATE}&systodate1={DAY}&systodate2={MONTH}&systodate3={YEAR}&todate1=&todate2=&todate3=&todate=&ZONETYPE=0&STATE=0&CITY=0&AREA=0&CALLTYPE=0&MOBILE=&COMPANYNAME=8369&ZONE=0&technician=0&naTechnician=0&naTech=0&REFRESH=Refresh+Report&hidFlag=FALSE&COMPANYCD=&query=+and+CAM.TECHNICIAN%3E%3D0+and+CAM.asc_code+%3D+decode%28%270%27%2C%270%27%2CCAM.ASC_CODE%2C+%270%27%29+and+CAM.asc_code+%3D+DECODE%28%278369%27%2C%270%27%2C%27%25%27%2C%278369%27%29+and+%28cam.asc_code+in+%28select+uam.asc_code+from+pcs_user_access_mapping+uam+where+cam.asc_code%3Duam.asc_code+and+uam.user_id%3D%27%27+%29+or+2%3D%28case+when+1+not+in+%28select+1+from+pcs_user_access_mapping+uam+where+uam.user_id%3D%27%27%29+then+2+else+1+end+%29%29&editFlag=T&txtPageSize={PAGESIZE}"
+    url-allocation: https://app.servitiumcrm.com/{SERVITIUM_APP}/callmanagement/testshowassignDSC.report?xmlFileName=testshowassignDSC_config.xml
+    url-prefix: https://app.servitiumcrm.com/{SERVITIUM_APP}/
+  symphony:
+    query-allocation: "CALLIDFROM1=&fromid=&sysfromdate={DATE}&sysfromdate1={DAY}&sysfromdate2={MONTH}&sysfromdate3={YEAR}&fromdate1=&fromdate2=&fromdate3=&fromdate=&ALLOCATIONSTATUS=B&CALLIDTO1=&toid=&systodate={DATE}&systodate1={DAY}&systodate2={MONTH}&systodate3={YEAR}&todate1=&todate2=&todate3=&todate=&ZONETYPE=0&STATE=0&CITY=0&AREA=0&CALLTYPE=0&MOBILE=&COMPANYNAME=7796&ZONE=0&technician=0&naTechnician=5&naTech=5&REFRESH=Refresh+Report&hidFlag=FALSE&COMPANYCD=33858&query=+and+CAM.TECHNICIAN%3E%3D0+and+CAM.asc_code+%3D+decode%28%270%27%2C%270%27%2CCAM.ASC_CODE%2C+%270%27%29+and+CAM.asc_code+%3D+DECODE%28%277796%27%2C%270%27%2C%27%25%27%2C%277796%27%29+and+%28cam.asc_code+in+%28select+uam.asc_code+from+pcs_user_access_mapping+uam+where+cam.asc_code%3Duam.asc_code+and+uam.user_id%3D%2733858%27+%29+or+2%3D%28case+when+1+not+in+%28select+1+from+pcs_user_access_mapping+uam+where+uam.user_id%3D%2733858%27%29+then+2+else+1+end+%29%29&txtPageSize={PAGESIZE}"
   app:
-    url-prefix: https://app.servitiumcrm.com/butterfly/
+    url-prefix: https://app.servitiumcrm.com/{SERVITIUM_APP}/
   jobsheets:
     enable-async: false
 
@@ -17,3 +25,7 @@ aws:
 variables:
   button: MMXDDYMMZ771775776FFY336225WWXAAYCCZDDYJJYEEP226AAZIIYKKQAAL
   link: https://Y-DhD7u+7Lak-dcjj95@7NbmNng-SJZUnIl-XzxFE_sC21.com
+
+pagination:
+  active: true
+  max-items: 12
