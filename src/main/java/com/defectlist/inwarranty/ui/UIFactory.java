@@ -2,6 +2,7 @@ package com.defectlist.inwarranty.ui;
 
 import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
+import com.defectlist.inwarranty.model.TargetPage;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 @Component
 public class UIFactory {
 
-    public String getLoginPageV4(final String jSessionId, final String serverId, final URL captchaUrl) {
+    public String getLoginPageV4(final String jSessionId, final String serverId, final URL captchaUrl, final TargetPage targetPage) {
         return "<html>" +
                 "   <head>" +
                 "       <title>Defectives List Login Page</title>" +
@@ -68,7 +69,7 @@ public class UIFactory {
                 "   </head>" +
                 "   <body>" +
                 "       <h2>Login Page</h2>\n" +
-                "       <form name='billGenerator' id='billGenerator' method='POST' onsubmit=\"return validate();\" action='/app/v2/defects/login'>\n" +
+                "       <form name='billGenerator' id='billGenerator' method='POST' onsubmit=\"return validate();\" action='" + targetPage.getTarget() + "'>\n" +
                 "       <div class=\"imgcontainer\">\n" +
                 "       <img src=\"https://www.w3schools.com/howto/img_avatar2.png\" alt=\"Avatar\" class=\"avatar\">\n" +
                 "       </div>\n" +
@@ -126,7 +127,7 @@ public class UIFactory {
                 "</html>";
     }
 
-    public static String getFirstPageV4() {
+    public static String getFirstPageV4(final TargetPage targetPage) {
         return "<html>" +
                 "   <head>" +
                 "       <title>Defectives List Login Page</title>" +
@@ -149,7 +150,7 @@ public class UIFactory {
                 "   </head>" +
                 "   <body>" +
                 "       <h2>Login Page</h2>\n" +
-                "       <form name='billGenerator' id='billGenerator' method='POST' action='/app/v2/defects/prelogin'>\n" +
+                "       <form name='billGenerator' id='billGenerator' method='POST' action='/app/v2/defects/prelogin?targetPage=" + targetPage + "'>\n" +
                 "       <div class=\"imgcontainer\">\n" +
                 "       <img src=\"https://www.w3schools.com/howto/img_avatar2.png\" alt=\"Avatar\" class=\"avatar\">\n" +
                 "       </div>\n" +

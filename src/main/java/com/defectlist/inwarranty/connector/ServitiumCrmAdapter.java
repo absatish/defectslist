@@ -47,14 +47,17 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
     }
 
     @Override
-    public String readContentFromServitiumCrm(final ContentRequest contentRequest) {
+    public String readContentFromServitiumCrm(final ContentRequest contentRequest, String type) {
         final ResponseEntity<String> exchange = restOperations.exchange(
-                servitiumCrmUrlService.getRentalReturn(),
+                contentRequest.isCallSearch() ? servitiumCrmUrlService.getCallSearch() : servitiumCrmUrlService.getRentalReturn(),
                 HttpMethod.POST,
-                httpRequestHeadersService.getHttpEntityForServitiumCrm(contentRequest, 0),
+                httpRequestHeadersService.getHttpEntityForServitiumCrm(contentRequest, 0, type),
                 new ParameterizedTypeReference<String>() {
                 });
         final String body = exchange.getBody();
+        if (contentRequest.isCallSearch()) {
+            return body;
+        }
         if (body.contains("Data not found")) {
             throw new NoDataFoundException("No pending bills found.. Sukheebhava..!");
         }
@@ -63,7 +66,7 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
                 .replaceAll("value=","")
                 .replaceAll("'","")
                 .replaceAll(" ", ""));
-        return readContentFromServitiumCrm(contentRequest, totalRecords);
+        return readContentFromServitiumCrm(contentRequest, totalRecords, type);
     }
 
     @Override
@@ -140,11 +143,11 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
         }
     }
 
-    private String readContentFromServitiumCrm(final ContentRequest contentRequest, final int totalRecords) {
+    public String readContentFromServitiumCrm(final ContentRequest contentRequest, final int totalRecords, final String type) {
         final ResponseEntity<String> exchange = restOperations.exchange(
                 servitiumCrmUrlService.getRentalReturn(),
                 HttpMethod.POST,
-                httpRequestHeadersService.getHttpEntityForServitiumCrm(contentRequest, totalRecords),
+                httpRequestHeadersService.getHttpEntityForServitiumCrm(contentRequest, totalRecords, type),
                 new ParameterizedTypeReference<String>() {
                 });
         return exchange.getBody();

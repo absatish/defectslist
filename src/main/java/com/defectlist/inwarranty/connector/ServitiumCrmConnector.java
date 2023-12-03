@@ -13,7 +13,7 @@ public interface ServitiumCrmConnector {
 
     List<Document> getDetailsByComplaintNumbers(final List<String> complaintNumbers);
 
-    String readContentFromServitiumCrm(final ContentRequest contentRequest);
+    String readContentFromServitiumCrm(final ContentRequest contentRequest, final String type);
 
     HttpStatus login(final LoginRequest loginRequest);
 

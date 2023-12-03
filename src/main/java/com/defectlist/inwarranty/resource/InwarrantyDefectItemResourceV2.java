@@ -8,6 +8,7 @@ import com.defectlist.inwarranty.exception.NoDataFoundException;
 import com.defectlist.inwarranty.exception.ProhibitedUserTriedToLoginException;
 import com.defectlist.inwarranty.httprequestheaders.LoginRequest;
 import com.defectlist.inwarranty.model.PaginatedRequest;
+import com.defectlist.inwarranty.model.TargetPage;
 import com.defectlist.inwarranty.ui.Banners;
 import com.defectlist.inwarranty.ui.MessageType;
 import com.defectlist.inwarranty.ui.UIFactory;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -64,32 +66,36 @@ public class InwarrantyDefectItemResourceV2 {
     }
 
     @GetMapping
-    public String firstPage() {
-        return UIFactory.getFirstPageV4();
+    public String firstPage(@RequestParam(required = false) final TargetPage targetPage) {
+        return UIFactory.getFirstPageV4(targetPage == null ? TargetPage.DEFECTIVE : targetPage);
     }
 
     @GetMapping("/login")
-    public String login() {
-        return Banners.getMessageBanner(MessageType.WARNING, "Invalid Session. Please first login..!") + firstPage();
+    public String login(@RequestParam(required = false) final TargetPage targetPage) {
+        return Banners.getMessageBanner(MessageType.WARNING, "Invalid Session. Please first login..!")
+                + firstPage(targetPage == null ? TargetPage.DEFECTIVE : targetPage);
     }
 
     @GetMapping("/prelogin")
-    public String preLoad() {
-        return firstPage();
+    public String preLoad(@RequestParam(required = false) final TargetPage targetPage) {
+        return firstPage(targetPage == null ? TargetPage.DEFECTIVE : targetPage);
     }
+
     @PostMapping(path = "/prelogin")
-    public String preLogin(@RequestParam final Map<String, String> requestParams) {
+    public String preLogin(@RequestParam final Map<String, String> requestParams,
+                           @RequestParam(required = false) TargetPage targetPage) {
+        targetPage = targetPage == null ? TargetPage.DEFECTIVE : targetPage;
 
         try {
             final LoginRequest loginRequest = buildLoginRequest(requestParams);
             inwarrantyDefectItemService.validateUsername(loginRequest);
-            return initialPage(loginRequest.getUserId());
+            return initialPage(loginRequest.getUserId(), targetPage);
         } catch (final InvalidLoginRequestException invalidLoginRequestException) {
-            return getInvalidLoginRequestResponse(invalidLoginRequestException);
+            return getInvalidLoginRequestResponse(invalidLoginRequestException, targetPage);
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
-            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
+            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage(targetPage);
         } catch (final Exception exception) {
-            return getUnknownExceptionResponse(exception) + firstPage();
+            return getUnknownExceptionResponse(exception) + firstPage(targetPage);
         }
     }
 
@@ -105,13 +111,13 @@ public class InwarrantyDefectItemResourceV2 {
             }
             return Banners.getMessageBanner(MessageType.SUCCESS, "Hey..! " + loginRequest.getUserId() + " loggedIn successfully") + content;
         } catch (final InvalidLoginRequestException invalidLoginRequestException) {
-            return getInvalidLoginRequestResponse(invalidLoginRequestException);
+            return getInvalidLoginRequestResponse(invalidLoginRequestException, TargetPage.DEFECTIVE);
         } catch (final NoDataFoundException noDataFoundException) {
             return Banners.getMessageBanner(MessageType.INFO, noDataFoundException.getMessage());
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
-            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
+            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage(TargetPage.DEFECTIVE);
         } catch (final Exception exception) {
-            return getUnknownExceptionResponse(exception) + firstPage();
+            return getUnknownExceptionResponse(exception) + firstPage(TargetPage.DEFECTIVE);
         }
     }
 
@@ -124,9 +130,9 @@ public class InwarrantyDefectItemResourceV2 {
         } catch (final NoDataFoundException noDataFoundException) {
             return Banners.getMessageBanner(MessageType.INFO, noDataFoundException.getMessage());
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
-            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
+            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage(TargetPage.DEFECTIVE);
         } catch (final Exception exception) {
-            return getUnknownExceptionResponse(exception) + firstPage();
+            return getUnknownExceptionResponse(exception) + firstPage(TargetPage.DEFECTIVE);
         }
     }
 
@@ -145,15 +151,31 @@ public class InwarrantyDefectItemResourceV2 {
         } catch (final NoDataFoundException noDataFoundException) {
             return Banners.getMessageBanner(MessageType.INFO, noDataFoundException.getMessage());
         } catch (final ProhibitedUserTriedToLoginException prohibitedUserTriedToLoginException) {
-            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage()) + firstPage();
+            return Banners.getMessageBanner(MessageType.WARNING, prohibitedUserTriedToLoginException.getMessage())
+                    + firstPage(TargetPage.DEFECTIVE);
         } catch (final Exception exception) {
-            return getUnknownExceptionResponse(exception) + firstPage();
+            return getUnknownExceptionResponse(exception) + firstPage(TargetPage.DEFECTIVE);
         }
     }
 
-    private String initialPage(final String userId) {
+    @GetMapping("/good-items")
+    public String getGoodItems() {
+        return preLoad(TargetPage.GOOD);
+    }
+
+    @PostMapping("/good-items")
+    public String getGoodItems(@RequestParam final Map<String, String> requestParams) {
         try {
-            String initialPage = inwarrantyDefectItemService.getPreload(Version.VERSION_2);
+            final LoginRequest loginRequest = buildLoginRequest(requestParams);
+            return inwarrantyDefectItemService.getGoodItems(loginRequest);
+        } catch (Exception exception) {
+            return getUnknownExceptionResponse(exception);
+        }
+    }
+
+    private String initialPage(final String userId, final TargetPage targetPage) {
+        try {
+            String initialPage = inwarrantyDefectItemService.getPreload(Version.VERSION_2, targetPage);
             return initialPage.replaceAll("id=\"username\" name=\"username\"",
                     "id=\"username\" name=\"username\" readonly value=" + userId + " ")
                     .replaceAll("placeholder=username type=text id=username name=username",
@@ -189,8 +211,9 @@ public class InwarrantyDefectItemResourceV2 {
                 Integer.parseInt(RequestParameterResolver.getValue(requestParams, "pageNumber")));
     }
 
-    private String getInvalidLoginRequestResponse(final InvalidLoginRequestException invalidLoginRequestException) {
-        return firstPage() + invalidLoginRequestException.getMessage();
+    private String getInvalidLoginRequestResponse(final InvalidLoginRequestException invalidLoginRequestException,
+                                                  final TargetPage targetPage) {
+        return firstPage(targetPage) + invalidLoginRequestException.getMessage();
     }
 
     private String getUnknownExceptionResponse(final Exception exception) {

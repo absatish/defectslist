@@ -12,6 +12,7 @@ import com.defectlist.inwarranty.httprequestheaders.LogoutRequest;
 import com.defectlist.inwarranty.model.CaptchaResponse;
 import com.defectlist.inwarranty.model.DefectivePartType;
 import com.defectlist.inwarranty.model.GridItem;
+import com.defectlist.inwarranty.model.TargetPage;
 import com.defectlist.inwarranty.ui.UIFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.defectlist.inwarranty.ui.LineImage.HORIZONTAL_LINE_IMAGE;
 import static com.defectlist.inwarranty.ui.LineImage.VERTICAL_LINE_IMAGE;
@@ -47,8 +56,12 @@ public class InwarrantyDefectItemService {
 
     private static final String KEY_NAME = "captcha.jpg";
 
-
     private static final String LINE_REGEX = "<input type='hidden' size='50' name = 'Call_Id";
+
+    private static final String CALL_SEARCH_REGEX = "title=\"B\\d+\" value=\"B\\d+";
+    private static final String PART_CODE_REGEX = "<nobr>[A-Z\\d].+</nobr>"; //"<nobr>[A-Z][A-Z\\d]+</nobr>";
+    private static final String GOOD_PARTS_REGEX = "<td class='altrow' align='left' wrap >[A-Z\\d].+<input type='hidden' size='50' name = 'Description[\\d].*' value = '[A-Z\\d].+'>";
+    private static final String ALLOCATED_QTY_REGEX = "<td class='altrow' align='right' nowrap >[\\d]<input type='hidden'  name = 'Allocated_Qty[A-Z\\d].+' value = '1'>";
 
     private final ServitiumCrmConnector servitiumCrmConnector;
 
@@ -86,17 +99,10 @@ public class InwarrantyDefectItemService {
     }
 
     public String login(final LoginRequest loginRequest) throws InvalidLoginRequestException {
-        if (HttpStatus.OK.equals(servitiumCrmConnector.login(loginRequest))) {
-            final String loggedInUserName = WelcomeListFactory
-                    .getLoggedInUserName(servitiumCrmConnector.getWelcomeList(loginRequest));
-            validate(loginRequest);
-            loginRequest.setLoggedInUserName(loggedInUserName);
-            final String content = getCallIds(loginRequest, loggedInUserName);
-            servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
-            return content;
-        } else {
-            return "<font color=red>Something went wrong. please try to <a href='/app/v1/defects'>login</a> again..!</font><br><hr>" + getPreload(loginRequest.getVersion());
-        }
+        final LoginRequest successRequest = getLoginRequest(loginRequest);
+        final String content = getCallIds(successRequest, successRequest.getLoggedInUserName());
+        servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
+        return content;
     }
 
     public String loginAndLoadBillNumbers(final LoginRequest loginRequest) throws InvalidLoginRequestException {
@@ -109,18 +115,19 @@ public class InwarrantyDefectItemService {
             servitiumCrmConnector.logout(new LogoutRequest(loginRequest.getUserId()));
             return content;
         } else {
-            return "<font color=red>Something went wrong. please try to <a href='/app/v1/defects'>login</a> again..!</font><br><hr>" + getPreload(loginRequest.getVersion());
+            return "<font color=red>Something went wrong. please try to <a href='/app/v1/defects'>login</a> again..!</font><br><hr>"
+                    + getPreload(loginRequest.getVersion(), TargetPage.DEFECTIVE);
         }
     }
 
-    public String getPreload(final Version version) {
+    public String getPreload(final Version version, final TargetPage targetPage) {
 
         String jSessionId;
         String serverId;
 
         LOGGER.info("No session values found in cache. retrieve fresh values");
         final CaptchaResponse captchaResponse = servitiumCrmConnector.getHttpHeaders();
-        s3Service.upload(bucketName, KEY_NAME, captchaResponse.getImageBytes());
+        s3Service.upload(bucketName, KEY_NAME, captchaResponse.getImageBytes(), "image/jpg");
         try {
             final List<String> cookies = captchaResponse.getHttpHeaders().getValuesAsList("set-cookie");
 
@@ -132,7 +139,7 @@ public class InwarrantyDefectItemService {
             LOGGER.info("put session values into cache, serverId : {}", serverId);
 
             cacheService.put(CacheType.SESSION.getCacheName(), SERVER_ID, serverId);
-            } catch (final IndexOutOfBoundsException indexOutOfBoundsException) {
+        } catch (final IndexOutOfBoundsException indexOutOfBoundsException) {
             try {
                 jSessionId = cacheService.get(CacheType.SESSION.getCacheName(), JSESSION_ID, String.class).get();
                 serverId = cacheService.get(CacheType.SESSION.getCacheName(), SERVER_ID, String.class).get();
@@ -146,7 +153,7 @@ public class InwarrantyDefectItemService {
         }
         final URL url = s3Service.generatePresignedUrl(bucketName, KEY_NAME, Date.from(Instant.now().plusSeconds(300)), HttpMethod.GET);
 
-        return uiFactory.getLoginPageV4(jSessionId, serverId, url);
+        return uiFactory.getLoginPageV4(jSessionId, serverId, url, targetPage);
     }
 
     @EmailServiceEnabled
@@ -157,6 +164,72 @@ public class InwarrantyDefectItemService {
     @EmailServiceEnabled
     public void validate(final LoginRequest loginRequest) throws InvalidLoginRequestException {
         loginRequest.validate();
+    }
+
+    public String getGoodItems(final LoginRequest loginRequest) throws InvalidLoginRequestException {
+        final LoginRequest successRequest = getLoginRequest(loginRequest);
+        final String goodItems = getContent(successRequest, "REG");
+        final String claimItems = getContent(successRequest, LocalDate.now().minusDays(10), LocalDate.now());
+        final Map<String, Long> partCodes = new HashMap<>();
+        Arrays.stream(claimItems.split("\n"))
+                .filter(line -> matches(line, CALL_SEARCH_REGEX))
+                .map(this::getComplaintId)
+                .map(servitiumCrmConnector::getJobSheet)
+                .map(this::getPartCodes)
+                .flatMap(Collection::stream)
+                .forEach(partCode -> {
+                    var count = partCodes.computeIfAbsent(partCode, v -> 0L);
+                    partCodes.put(partCode, count + 1);
+                });
+
+        final Map<String, Long> goodCodes = new LinkedHashMap<>();
+        addToGoodCodes(goodItems, goodCodes);
+
+        final Map<String, Long> oldGoodCodes = new HashMap<>();
+        final String oldGoodCodesString = s3Service.getGoodParts();
+        addToGoodCodes(oldGoodCodesString, oldGoodCodes);
+
+        String content = "<html>" +
+                "   <head>" +
+                "       <title> Good Parts Comparison</title>" +
+                "   </head>" +
+                "   <body>" +
+                "       <table border=1>" +
+                "           <tr><th bgcolor=pink colspan=4>Reference Data Taken : " + s3Service.getGoodPartsModified() + "</th></tr>" +
+                "           <tr><th>Part Name</th><th>New Count</th><th>Old Count</th><th>Claimed</th></tr>\n" + goodCodes.entrySet().stream().map(entry -> {
+
+                    long oldGoodCode = oldGoodCodes.getOrDefault(entry.getKey(), 0L);
+                    long partCode = partCodes.getOrDefault(entry.getKey(), 0L);
+                    boolean isDescripency = entry.getValue() != oldGoodCode - partCode;
+                    String color = isDescripency ? "pink" : "white";
+                    return "<tr bgcolor='" + color + "'><td>" + entry.getKey()
+                            + "</td><td>" + entry.getValue() + "</td><td>" + oldGoodCode
+                            + "</td><td>" + partCode;
+                })
+                .collect(Collectors.joining("</td></tr>\n"))
+                + "</td></tr>\n</table>" +
+                "</body>" +
+                "</html>";
+
+        s3Service.upload(bucketName, "items.html", goodItems.getBytes(StandardCharsets.UTF_8), "text/plain");
+        s3Service.upload(bucketName, "items-prev.html", oldGoodCodesString.getBytes(StandardCharsets.UTF_8), "text/plain");
+
+        return content;
+    }
+
+    public LoginRequest getLoginRequest(final LoginRequest loginRequest) throws InvalidLoginRequestException {
+        try {
+            if (HttpStatus.OK.equals(servitiumCrmConnector.login(loginRequest))) {
+                final String loggedInUserName = WelcomeListFactory
+                        .getLoggedInUserName(servitiumCrmConnector.getWelcomeList(loginRequest));
+                validate(loginRequest);
+                loginRequest.setLoggedInUserName(loggedInUserName);
+                return loginRequest;
+            }
+        } catch (Exception exception) {
+            throw new InvalidLoginRequestException(exception.getMessage());
+        }
+        throw new InvalidLoginRequestException("Login failed. Unknown reason");
     }
 
     private String getOnlyCallIds(final LoginRequest loginRequest, final String loggedInUserName) {
@@ -177,7 +250,7 @@ public class InwarrantyDefectItemService {
 
     private Map<String, String> loadCallIds(final LoginRequest loginRequest) {
         final boolean includeOther = loginRequest.includeOthers();
-        final String responseBody = getContent(loginRequest);
+        final String responseBody = getContent(loginRequest, "DEF");
         final String[] data = responseBody.split("\n");
         final Map<String, String> callIds = new HashMap<>();
         DefectivePartType.getAvailablePartTypes(includeOther)
@@ -185,7 +258,7 @@ public class InwarrantyDefectItemService {
         int localLineCount = -1;
         String tempCallId = "";
         boolean started = false;
-        for(String line : data) {
+        for (String line : data) {
             if (line.contains(LINE_REGEX)) {
                 final String billLine = line.split(LINE_REGEX)[0];
                 tempCallId = billLine.substring(billLine.length() - 12);
@@ -218,9 +291,54 @@ public class InwarrantyDefectItemService {
                 .orElse(DefectivePartType.OTHER);
     }
 
-    private String getContent(final LoginRequest loginRequest) {
+    private String getContent(final LoginRequest loginRequest, final String type) {
         final String jSessionId = loginRequest.getJSessionId();
         final String serverId = loginRequest.getServer();
-        return servitiumCrmConnector.readContentFromServitiumCrm(new ContentRequest(jSessionId, serverId));
+        return servitiumCrmConnector.readContentFromServitiumCrm(ContentRequest.builder()
+                .jSessionId(jSessionId)
+                .server(serverId)
+                .callSearch(false)
+                .build(), type);
+    }
+
+    private String getContent(final LoginRequest loginRequest, final LocalDate fromDate, final LocalDate toDate) {
+        final String jSessionId = loginRequest.getJSessionId();
+        final String serverId = loginRequest.getServer();
+        return servitiumCrmConnector.readContentFromServitiumCrm(ContentRequest.builder()
+                .jSessionId(jSessionId)
+                .server(serverId)
+                .callSearch(true)
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .build(), "REG");
+    }
+
+    private List<String> getPartCodes(final String jobSheet) {
+        return Arrays.stream(jobSheet.split("\n"))
+                .filter(line -> matches(line, PART_CODE_REGEX) && !line.contains("Vikram"))
+                .map(line -> line.replace("<nobr>", "").replaceAll("</nobr>", "").trim())
+                .collect(Collectors.toList());
+    }
+
+    private String getComplaintId(final String line) {
+        return line.split("title=\"")[1].split("\" value=\"")[0];
+    }
+
+    private boolean matches(final String line, final String regex) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(line);
+        return matcher.find();
+    }
+
+    private void addToGoodCodes(final String goodItems, Map<String, Long> goodCodes) {
+        var array = goodItems.split("\n");
+        for (int i = 0; i < array.length; i++) {
+            if (matches(array[i], GOOD_PARTS_REGEX)) {
+                var partName = array[i].split("<td class='altrow' align='left' wrap >")[1].split("<input type")[0];
+                var partCount = array[i + 3].split("<td class='altrow' align='right' nowrap >")[1].split("<input")[0];
+                i = i + 3;
+                goodCodes.put(partName, Long.valueOf(partCount));
+            }
+        }
     }
 }

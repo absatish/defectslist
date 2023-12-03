@@ -146,7 +146,7 @@ public class InwarrantyDefectItemServiceV3 {
 
         LOGGER.info("No session values found in cache. retrieve fresh values");
         final CaptchaResponse captchaResponse = servitiumCrmConnector.getHttpHeaders();
-        s3Service.upload(bucketName, KEY_NAME, captchaResponse.getImageBytes());
+        s3Service.upload(bucketName, KEY_NAME, captchaResponse.getImageBytes(), "image/jpg");
         try {
             final List<String> cookies = captchaResponse.getHttpHeaders().getValuesAsList("set-cookie");
 
@@ -184,6 +184,11 @@ public class InwarrantyDefectItemServiceV3 {
         return gridItemFromCache.orElseGet(() -> getJobSheet(spareName, complaintId, 1, loggedInUserName));
     }
 
+    public String getGoodItems(final LoginRequest loginRequest) {
+        final String responseBody = getContent(loginRequest, "REG");
+        return responseBody;
+    }
+
     private GridItem getJobSheet(final String spareName, final String complaintId, final int tryCount,
                                  final String loggedInUserName) {
         LOGGER.info("Get jobsheet, complaintId : {}, tryCount : {}", complaintId, tryCount);
@@ -214,7 +219,7 @@ public class InwarrantyDefectItemServiceV3 {
 
     private List<String> loadCallIds(final LoginRequest loginRequest) {
         final boolean includeOther = loginRequest.includeOthers();
-        final String responseBody = getContent(loginRequest);
+        final String responseBody = getContent(loginRequest, "DEF");
         final String[] data = responseBody.split("\n");
         final List<String> callIds = new ArrayList<>();
         int localLineCount = -1;
@@ -299,9 +304,12 @@ public class InwarrantyDefectItemServiceV3 {
                 .orElse(DefectivePartType.OTHER);
     }
 
-    private String getContent(final LoginRequest loginRequest) {
+    private String getContent(final LoginRequest loginRequest, final String type) {
         final String jSessionId = loginRequest.getJSessionId();
         final String serverId = loginRequest.getServer();
-        return servitiumCrmConnector.readContentFromServitiumCrm(new ContentRequest(jSessionId, serverId));
+        return servitiumCrmConnector.readContentFromServitiumCrm(ContentRequest.builder()
+                        .jSessionId(jSessionId)
+                        .server(serverId)
+                .build(), type);
     }
 }
