@@ -24,6 +24,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -166,10 +167,27 @@ public class InwarrantyDefectItemService {
         loginRequest.validate();
     }
 
+    public String uploadDoc(final LoginRequest loginRequest) {
+        final String goodItems = getContent(loginRequest, "REG");
+        final String oldGoodCodesString = s3Service.getGoodParts();
+        final LocalDateTime lastModified = LocalDateTime.parse(s3Service.getGoodPartsModified());
+        if (lastModified.toLocalDate().equals(LocalDate.now())) {
+            return "<table  border=1 width=100%><tr><th bgcolor=pink><marquee>Already started from today</marquee></th></tr></table>" + getGoodItems(loginRequest, goodItems);
+        }
+        s3Service.upload(bucketName, "items.html", goodItems.getBytes(StandardCharsets.UTF_8), "text/plain");
+        s3Service.upload(bucketName, "items-prev.html", oldGoodCodesString.getBytes(StandardCharsets.UTF_8), "text/plain");
+        return getGoodItems(loginRequest, goodItems);
+    }
+
     public String getGoodItems(final LoginRequest loginRequest) throws InvalidLoginRequestException {
         final LoginRequest successRequest = getLoginRequest(loginRequest);
         final String goodItems = getContent(successRequest, "REG");
-        final String claimItems = getContent(successRequest, LocalDate.now().minusDays(10), LocalDate.now());
+        return getGoodItems(successRequest, goodItems);
+    }
+
+    private String getGoodItems(final LoginRequest successRequest, final String goodItems) {
+        final LocalDateTime lastModified = LocalDateTime.parse(s3Service.getGoodPartsModified());
+        final String claimItems = getContent(successRequest, lastModified.toLocalDate(), LocalDate.now());
         final Map<String, Long> partCodes = new HashMap<>();
         Arrays.stream(claimItems.split("\n"))
                 .filter(line -> matches(line, CALL_SEARCH_REGEX))
@@ -189,13 +207,20 @@ public class InwarrantyDefectItemService {
         final String oldGoodCodesString = s3Service.getGoodParts();
         addToGoodCodes(oldGoodCodesString, oldGoodCodes);
 
-        String content = "<html>" +
+        return "<html>" +
                 "   <head>" +
                 "       <title> Good Parts Comparison</title>" +
+                "       <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css\">\n" +
+                "       \n" +
+                "       <!-- jQuery library -->\n" +
+                "       <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js\"></script>\n" +
+                "       \n" +
+                "       <!-- Latest compiled JavaScript -->\n" +
+                "       <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js\"></script>" +
                 "   </head>" +
                 "   <body>" +
-                "       <table border=1>" +
-                "           <tr><th bgcolor=pink colspan=4>Reference Data Taken : " + s3Service.getGoodPartsModified() + "</th></tr>" +
+                "       <table style='margin-left: 10px' border=1>" +
+                "           <tr><th bgcolor=pink colspan=2>Comparision between " + lastModified + " & " + LocalDateTime.now() + "</th><th bgcolor=pink  colspan=2><a href='/app/v2/defects/start?id=" + successRequest.getJSessionId() + "&server=" + successRequest.getServer() + "'>Start from Now</a></th></tr>" +
                 "           <tr><th>Part Name</th><th>New Count</th><th>Old Count</th><th>Claimed</th></tr>\n" + goodCodes.entrySet().stream().map(entry -> {
 
                     long oldGoodCode = oldGoodCodes.getOrDefault(entry.getKey(), 0L);
@@ -210,11 +235,6 @@ public class InwarrantyDefectItemService {
                 + "</td></tr>\n</table>" +
                 "</body>" +
                 "</html>";
-
-        s3Service.upload(bucketName, "items.html", goodItems.getBytes(StandardCharsets.UTF_8), "text/plain");
-        s3Service.upload(bucketName, "items-prev.html", oldGoodCodesString.getBytes(StandardCharsets.UTF_8), "text/plain");
-
-        return content;
     }
 
     public LoginRequest getLoginRequest(final LoginRequest loginRequest) throws InvalidLoginRequestException {

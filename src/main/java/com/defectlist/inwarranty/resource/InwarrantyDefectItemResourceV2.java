@@ -163,6 +163,12 @@ public class InwarrantyDefectItemResourceV2 {
         return preLoad(TargetPage.GOOD);
     }
 
+    @GetMapping("/start")
+    public String uploadDoc(@RequestParam final Map<String, String> requestParams) {
+        final LoginRequest loginRequest = buildLoginRequest(requestParams);
+        return inwarrantyDefectItemService.uploadDoc(loginRequest);
+    }
+
     @PostMapping("/good-items")
     public String getGoodItems(@RequestParam final Map<String, String> requestParams) {
         try {
