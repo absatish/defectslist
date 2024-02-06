@@ -143,6 +143,17 @@ public class ServitiumCrmAdapter implements ServitiumCrmConnector {
         }
     }
 
+    @Override
+    public String readHappyCode(ContentRequest contentRequest, String callId) {
+        final ResponseEntity<String> exchange = restOperations.exchange(
+                servitiumCrmUrlService.getHappyCode().replaceAll("\\{callId}", callId),
+                HttpMethod.POST,
+                httpRequestHeadersService.getHttpEntityForHappyCode(contentRequest, callId),
+                new ParameterizedTypeReference<String>() {
+                });
+        return exchange.getBody();
+    }
+
     public String readContentFromServitiumCrm(final ContentRequest contentRequest, final int totalRecords, final String type) {
         final ResponseEntity<String> exchange = restOperations.exchange(
                 servitiumCrmUrlService.getRentalReturn(),

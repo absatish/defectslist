@@ -25,4 +25,6 @@ public interface ServitiumCrmConnector {
 
     void logout(final LogoutRequest logoutRequest);
 
+    String readHappyCode(final ContentRequest contentRequest, final String callId);
+
 }

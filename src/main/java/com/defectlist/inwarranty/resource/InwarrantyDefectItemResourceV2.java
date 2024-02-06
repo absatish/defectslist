@@ -179,6 +179,28 @@ public class InwarrantyDefectItemResourceV2 {
         }
     }
 
+    @GetMapping("/happy-code")
+    public String getHappyCodeGet(@RequestParam final Map<String, String> requestParams) {
+        if (requestParams.isEmpty()) {
+            return login(TargetPage.HAPPY_CODE);
+        }
+        return getHappyCode(requestParams);
+    }
+
+    @PostMapping("/happy-code")
+    public String getHappyCode(@RequestParam final Map<String, String> requestParams) {
+        final String callId = requestParams.get("callId");
+        if (callId == null) {
+            return getBannerForHappyCode(requestParams);
+        }
+        try {
+            final LoginRequest loginRequest = buildLoginRequest(requestParams);
+            return getBannerForHappyCode(requestParams) + inwarrantyDefectItemService.getHappyCode(loginRequest, callId);
+        } catch (Exception exception) {
+            return getUnknownExceptionResponse(exception);
+        }
+    }
+
     private String initialPage(final String userId, final TargetPage targetPage) {
         try {
             String initialPage = inwarrantyDefectItemService.getPreload(Version.VERSION_2, targetPage);
@@ -237,6 +259,17 @@ public class InwarrantyDefectItemResourceV2 {
                         "Complaint Ids : <input class=input type=text name=ids> &nbsp;&nbsp;" +
                         "Technician Name : <input type=text name=name>&nbsp;&nbsp;" +
                         "Branch : <input type=text name=branch>&nbsp;&nbsp;&nbsp;" +
+                        "<input type=submit></form></center>",
+                false);
+    }
+
+    private String getBannerForHappyCode(Map<String, String> requestParams) {
+        return Banners.getMessageBanner(MessageType.WARNING,
+                "<center><form name=extras method='POST'>" +
+                        "Complaint Ids : <input class=input type=text name=callId value=" + requestParams.get("callId") + ">  " +
+                        requestParams.entrySet().stream()
+                                .map(e -> "<input type=hidden name='" + e.getKey() + "' value='" + e.getValue() + "'>")
+                                .collect(Collectors.joining(" ")) +
                         "<input type=submit></form></center>",
                 false);
     }

@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.defectlist.inwarranty.ui.LineImage.HORIZONTAL_LINE_IMAGE;
 import static com.defectlist.inwarranty.ui.LineImage.VERTICAL_LINE_IMAGE;
@@ -183,6 +184,21 @@ public class InwarrantyDefectItemService {
         final LoginRequest successRequest = getLoginRequest(loginRequest);
         final String goodItems = getContent(successRequest, "REG");
         return getGoodItems(successRequest, goodItems);
+    }
+
+    public String getHappyCode(final LoginRequest loginRequest, final String callId) throws InvalidLoginRequestException {
+        final LoginRequest successRequest = getLoginRequest(loginRequest);
+        final String happyCode = servitiumCrmConnector.readHappyCode(ContentRequest.builder()
+                        .jSessionId(successRequest.getJSessionId())
+                        .server(successRequest.getServer())
+                .build(), callId);
+        return Stream.of(happyCode.split("\n"))
+                .filter(s -> s.contains("<input type=\"hidden\" name=\"completionCd\" id=\"completionCd\""))
+                .map(s -> "<center><u><font color=green size=15px> " + callId + ":" + s.replaceAll("<input type=\"hidden\" name=\"completionCd\" id=\"completionCd\"", "")
+                        .replaceAll("value=\"", "")
+                        .replaceAll("\"", "")
+                        .replaceAll(">", "") + "</font></center></u>")
+                .findFirst().orElse("Not found");
     }
 
     private String getGoodItems(final LoginRequest successRequest, final String goodItems) {
