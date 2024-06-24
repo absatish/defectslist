@@ -79,7 +79,6 @@
 				<configuration>
 					<version>1</version>
 					<projectId>winter-citizen-328416</projectId>
-					<cloudSdkHome>/usr/bin</cloudSdkHome> <!-- Add this line -->
 				</configuration>
 			</plugin>
 
