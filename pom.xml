@@ -14,7 +14,7 @@
 	<name>In-warranty defect items list</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -75,7 +75,7 @@
 			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>appengine-maven-plugin</artifactId>
-				<version>2.2.0</version>
+				<version>2.8.0</version>
 				<configuration>
 					<version>1</version>
 					<projectId>winter-citizen-328416</projectId>
