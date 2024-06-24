@@ -79,7 +79,7 @@
 				<configuration>
 					<version>1</version>
 					<projectId>winter-citizen-328416</projectId>
-					<cloudSdkHome>/user/bin/gcloud</cloudSdkHome> <!-- Add this line -->
+					<cloudSdkHome>/usr/bin/gcloud</cloudSdkHome> <!-- Add this line -->
 				</configuration>
 			</plugin>
 
